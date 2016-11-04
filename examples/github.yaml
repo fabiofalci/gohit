@@ -1,0 +1,19 @@
+headers:
+  - 'Accept: application/vnd.github.v3+json'
+
+url: https://api.github.com
+
+endpoints:
+  get_repo:
+    path: /repos/{owner}/{repo}
+  get_user:
+    path: /users/{username}
+
+requests:
+  show_sconsify:
+    endpoint: get_repo
+    owner: fabiofalci
+    repo: sconsify
+  show_fabio:
+    endpoint: get_user
+    username: fabiofalci
