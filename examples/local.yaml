@@ -1,0 +1,38 @@
+headers:
+  - 'Accept: application/json'
+
+url: http://localhost
+
+endpoints:
+  get_ip:
+    path: /ip
+
+  get_cpu_load:
+    path: /cpu/{cpu}/load
+
+  put_cpu_load_limit:
+    path: /cpu/{cpu}/load/{load}
+    headers:
+      - 'Content-length: 0'
+
+requests:
+  get_ip:
+    endpoint: get_ip
+
+  get_cpu_load:
+    endpoint: get_cpu_load
+
+  get_cpu0_load:
+    endpoint: get_cpu_load
+    cpu: 0
+
+  full_local_cpu:
+    endpoint: put_cpu_load_limit
+    load: 100
+
+  minimal_local_cpu:
+    endpoint: put_cpu_load_limit
+    load: 5
+
+  cpu_load:
+    endpoint: put_cpu_load_limit

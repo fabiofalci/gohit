@@ -10,6 +10,9 @@ import (
 
 	"github.com/smallfish/simpleyaml"
 	"github.com/urfave/cli"
+	"bytes"
+	"regexp"
+	"bufio"
 )
 
 var (
@@ -93,7 +96,8 @@ func main() {
 }
 
 func runRequest(requestName string) {
-
+	request := requests[requestName]
+	request.run()
 }
 
 func showRequest(requestName string) {
@@ -257,6 +261,31 @@ func (request Request) show() {
 	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
 	fmt.Printf("Request %v:\n", request.Name)
 	t.Execute(os.Stdout, request)
+}
+
+func (request Request) run() {
+	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
+	fmt.Printf("Request %v:\n", request.Name)
+	buf := new(bytes.Buffer)
+	t.Execute(buf, request)
+
+	requestAsString := buf.String()
+
+	if (!hasResolvedAllVariables(requestAsString)) {
+		re := regexp.MustCompile("{(.+?)}")
+		for _, v  := range re.FindAllString(requestAsString, -1) {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Printf("Enter %v: ", v)
+			value, _ := reader.ReadString('\n')
+			value = strings.TrimSpace(value)
+			requestAsString = strings.Replace(requestAsString, v, value, -1)
+		}
+	}
+
+	println(requestAsString)
+}
+func hasResolvedAllVariables(request string) bool {
+	return strings.Index(request, "{") == -1
 }
 
 func addConfiguration(name string, yaml *simpleyaml.Yaml) {
