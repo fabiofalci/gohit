@@ -15,13 +15,8 @@ endpoints:
     headers:
       - 'Content-length: 0'
 
+
 requests:
-  get_ip:
-    endpoint: get_ip
-
-  get_cpu_load:
-    endpoint: get_cpu_load
-
   get_cpu0_load:
     endpoint: get_cpu_load
     cpu: 0
@@ -33,6 +28,3 @@ requests:
   minimal_local_cpu:
     endpoint: put_cpu_load_limit
     load: 5
-
-  cpu_load:
-    endpoint: put_cpu_load_limit

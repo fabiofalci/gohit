@@ -97,12 +97,27 @@ func main() {
 
 func runRequest(requestName string) {
 	request := requests[requestName]
-	request.run()
+	if request != nil {
+		request.run()
+	}
+
+	endpoint := endpoints[requestName]
+	if endpoint != nil {
+		endpoint.run()
+	}
 }
 
 func showRequest(requestName string) {
 	request := requests[requestName]
-	request.show()
+	if request != nil {
+		request.show()
+		return
+	}
+
+	endpoint := endpoints[requestName]
+	if endpoint != nil {
+		endpoint.show()
+	}
 }
 
 func loadAll(file string) {
@@ -284,6 +299,29 @@ func (request Request) run() {
 
 	println(requestAsString)
 }
+
+func (endpoint Endpoint) run() {
+	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
+	fmt.Printf("Request %v:\n", endpoint.Name)
+	buf := new(bytes.Buffer)
+	t.Execute(buf, endpoint)
+
+	endpointAsString := buf.String()
+
+	if (!hasResolvedAllVariables(endpointAsString)) {
+		re := regexp.MustCompile("{(.+?)}")
+		for _, v  := range re.FindAllString(endpointAsString, -1) {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Printf("Enter %v: ", v)
+			value, _ := reader.ReadString('\n')
+			value = strings.TrimSpace(value)
+			endpointAsString = strings.Replace(endpointAsString, v, value, -1)
+		}
+	}
+
+	println(endpointAsString)
+}
+
 func hasResolvedAllVariables(request string) bool {
 	return strings.Index(request, "{") == -1
 }
