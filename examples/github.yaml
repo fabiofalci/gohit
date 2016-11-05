@@ -3,11 +3,16 @@ headers:
 
 url: https://api.github.com
 
+options:
+  - '--compress'
+
 endpoints:
   get_repo:
     path: /repos/{owner}/{repo}
   get_user:
     path: /users/{username}
+    options:
+      - '--silent'
 
 requests:
   show_sconsify:

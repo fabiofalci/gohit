@@ -1,6 +1,9 @@
 headers:
   - 'Accept: application/json'
 
+options:
+  - '--compress'
+
 url: http://localhost
 
 endpoints:
@@ -9,6 +12,8 @@ endpoints:
 
   get_cpu_load:
     path: /cpu/{cpu}/load
+    options:
+      - '--silent'
 
   put_cpu_load_limit:
     path: /cpu/{cpu}/load/{load}

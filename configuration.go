@@ -9,15 +9,17 @@ import (
 )
 
 type Configuration struct {
-	GlobalHeaders map[string]bool
 	GlobalUrl string
+	GlobalHeaders map[string]bool
+	GlobalOptions map[string]bool
 	Endpoints map[string]*Endpoint
 	Requests map[string]*Request
 }
 
 func NewConfiguration() *Configuration {
 	configuration := &Configuration{
-		GlobalHeaders: 	make(map[string]bool),
+		GlobalHeaders: make(map[string]bool),
+		GlobalOptions: make(map[string]bool),
 		Endpoints: make(map[string]*Endpoint),
 		Requests: make(map[string]*Request),
 	}
@@ -92,7 +94,11 @@ func (conf *Configuration) readEndpoints(endpointMap map[interface{}]interface{}
 }
 
 func (conf *Configuration) addRequest(name string, value interface{}) {
-	request := &Request{Name: name, Headers: make(map[string]bool)}
+	request := &Request{
+		Name: name,
+		Headers: make(map[string]bool),
+		Options: make(map[string]bool),
+	}
 	conf.Requests[name] = request
 
 	request.Parameters = value.(map[interface{}]interface{})
@@ -108,6 +114,10 @@ func (conf *Configuration) addRequest(name string, value interface{}) {
 		request.Headers[k] = v
 	}
 
+	for k,v := range endpoint.Options {
+		request.Options[k] = v
+	}
+
 	for k := range request.Parameters {
 		toReplace := "{"+k.(string)+"}"
 		replacement := conf.getReplacement(request.Parameters[k])
@@ -120,6 +130,13 @@ func (conf *Configuration) addRequest(name string, value interface{}) {
 			if (header != replaced) {
 				request.Headers[replaced] = true
 				delete(request.Headers, header)
+			}
+		}
+		for option := range request.Options {
+			replaced := strings.Replace(option, toReplace, replacement, -1)
+			if (option != replaced) {
+				request.Options[replaced] = true
+				delete(request.Options, option)
 			}
 		}
 	}
@@ -141,7 +158,11 @@ func (conf *Configuration) getReplacement(value interface{}) string {
 
 
 func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
-	endpoint := &Endpoint{Name: name, Headers: make(map[string]bool)};
+	endpoint := &Endpoint{
+		Name: name,
+		Headers: make(map[string]bool),
+		Options: make(map[string]bool),
+	};
 	conf.Endpoints[name] = endpoint
 
 	path, err := yaml.GetPath("endpoints", name, "path").String()
@@ -184,6 +205,17 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
 	for globalHeader := range conf.GlobalHeaders {
 		endpoint.Headers[globalHeader] = true
 	}
+
+	options, err := yaml.GetPath("endpoints", name, "options").Array()
+	if err == nil {
+		for i := range options {
+			endpoint.Options[options[i].(string)] = true
+		}
+	}
+
+	for globalOption := range conf.GlobalOptions {
+		endpoint.Options[globalOption] = true
+	}
 }
 
 func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) {
@@ -194,10 +226,15 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 		}
 	} else if name == "url" {
 		conf.GlobalUrl, _ = yaml.Get(name).String()
+	} else if name == "options" {
+		options, _ := yaml.Get(name).Array()
+		for i := range options {
+			conf.GlobalOptions[options[i].(string)] = true
+		}
 	}
 }
 
 func (conf *Configuration) isConfiguration(name string) bool {
-	return name == "headers" || name == "url"
+	return name == "headers" || name == "url" || name == "options"
 }
 

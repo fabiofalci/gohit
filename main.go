@@ -19,6 +19,11 @@ const showCurlTemplate = `curl {{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}} 
         -H '{{$key}}' \
 	{{- end}}
 {{- end}}
+{{- if .Options}}
+	{{- range $key, $value := .Options }}
+        {{$key}} \
+	{{- end}}
+{{- end}}
 	-X{{.Method}}
 `
 
@@ -31,6 +36,11 @@ const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 '{{$key}}'
 	{{- end}}
 {{- end}}
+{{- if .Options}}
+	{{- range $key, $value := .Options }}
+{{$key}}
+	{{- end}}
+{{- end}}
 -X{{.Method}}`
 
 type Endpoint struct {
@@ -40,6 +50,7 @@ type Endpoint struct {
 	Query string
 	Method string
 	Headers map[string]bool
+	Options map[string]bool
 	HasData bool
 }
 
@@ -52,6 +63,7 @@ type Request struct {
 	Query string
 	Method string
 	Headers map[string]bool
+	Options map[string]bool
 }
 
 type Executor struct {
