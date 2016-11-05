@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"regexp"
 	"bufio"
+	"os/exec"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 	requests map[string]*Request = make(map[string]*Request)
 )
 
-const curlTemplate = `curl {{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}} \
+const showCurlTemplate = `curl {{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}} \
 {{- if .Headers}}
 	{{- range $key, $value := .Headers }}
         -H '{{$key}}' \
@@ -30,6 +31,17 @@ const curlTemplate = `curl {{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}} \
 {{- end}}
 	-X{{.Method}}
 `
+
+// A separated template for running as it needs to transform the command to an array fo string.
+// It splits on newline.
+const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
+{{- if .Headers}}
+	{{- range $key, $value := .Headers }}
+-H
+'{{$key}}'
+	{{- end}}
+{{- end}}
+-X{{.Method}}`
 
 type Endpoint struct {
 	Name string
@@ -268,19 +280,19 @@ func addEndpoint(name string, yaml *simpleyaml.Yaml) {
 }
 
 func (endpoint Endpoint) show() {
-	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
+	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
 	t.Execute(os.Stdout, endpoint)
 }
 
 func (request Request) show() {
-	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
+	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
 	fmt.Printf("Request %v:\n", request.Name)
 	t.Execute(os.Stdout, request)
 }
 
 func (request Request) run() {
-	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
-	fmt.Printf("Request %v:\n", request.Name)
+	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
+	fmt.Printf("%v:\n", request.Name)
 	buf := new(bytes.Buffer)
 	t.Execute(buf, request)
 
@@ -297,12 +309,12 @@ func (request Request) run() {
 		}
 	}
 
-	println(requestAsString)
+	run(requestAsString)
 }
 
 func (endpoint Endpoint) run() {
-	t := template.Must(template.New("curlTemplate").Parse(curlTemplate))
-	fmt.Printf("Request %v:\n", endpoint.Name)
+	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
+	fmt.Printf("%v:\n", endpoint.Name)
 	buf := new(bytes.Buffer)
 	t.Execute(buf, endpoint)
 
@@ -319,7 +331,21 @@ func (endpoint Endpoint) run() {
 		}
 	}
 
-	println(endpointAsString)
+	run(endpointAsString)
+}
+
+func run(command string) {
+	cmd := exec.Command("curl", strings.Split(command, "\n")...)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		return
+	}
+	fmt.Println(out.String())
 }
 
 func hasResolvedAllVariables(request string) bool {
