@@ -4,11 +4,12 @@ import (
 	"os"
 	"io/ioutil"
 	"text/template"
-	"github.com/smallfish/simpleyaml"
 	"strings"
 	"strconv"
-	"flag"
 	"fmt"
+
+	"github.com/smallfish/simpleyaml"
+	"github.com/urfave/cli"
 )
 
 var (
@@ -48,25 +49,49 @@ type Request struct {
 	Headers map[string]bool
 }
 
-var fileFlag = flag.String("f", "", "File to be loaded")
-
 func main() {
-	command := os.Args[1]
-	if command == "show-all" {
-		loadAll()
-		showAll()
-	} else if command == "show" {
-		loadAll()
-		requestName := os.Args[len(os.Args) - 1]
-		showRequest(requestName)
+	app := cli.NewApp()
+	app.Version = "0.1.0"
+	var file string
 
-	} else if command == "run" {
-		loadAll()
-		requestName := os.Args[len(os.Args) - 1]
-		runRequest(requestName)
+	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "file",
+			Usage: "yaml file",
+			Destination: &file,
+		},
 	}
 
+	app.Commands = []cli.Command{
+		{
+			Name: "show-all",
+			Action: func(c *cli.Context) error {
+				loadAll(file)
+				showAll()
+				return nil
+			},
+		},
+		{
+			Name: "show",
+			Action: func(c *cli.Context) error {
+				loadAll(file)
+				showRequest(c.Args().First())
+				return nil
+			},
+		},
+		{
+			Name: "run",
+			Action: func(c *cli.Context) error {
+				loadAll(file)
+				runRequest(c.Args().First())
+				return nil
+			},
+		},
+	}
+
+	app.Run(os.Args)
 }
+
 func runRequest(requestName string) {
 
 }
@@ -76,15 +101,11 @@ func showRequest(requestName string) {
 	request.show()
 }
 
-func loadAll() {
-	flag.CommandLine.Parse(os.Args[2:])
-	if *fileFlag != "" {
-		module := *fileFlag
-		if !strings.HasSuffix(module, ".yaml") {
-			module = module + ".yaml"
-		}
-		readConfiguration(module)
+func loadAll(file string) {
+	if !strings.HasSuffix(file, ".yaml") {
+		file = file + ".yaml"
 	}
+	readConfiguration(file)
 }
 
 func readConfiguration(moduleDefinition string) {
