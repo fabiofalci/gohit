@@ -6,6 +6,8 @@ import (
 	"github.com/smallfish/simpleyaml"
 	"fmt"
 	"strconv"
+	"path/filepath"
+	"os"
 )
 
 type Configuration struct {
@@ -26,11 +28,25 @@ func NewConfiguration() *Configuration {
 	return configuration
 }
 
-func (conf *Configuration) LoadAll(file string) {
+func (conf *Configuration) LoadFile(file string) {
 	if !strings.HasSuffix(file, ".yaml") {
 		file = file + ".yaml"
 	}
 	conf.readConfiguration(file)
+}
+
+func (conf *Configuration) visit(path string, f os.FileInfo, err error) error {
+	if !f.IsDir() {
+		if strings.HasSuffix(path, ".yaml") {
+			fmt.Printf("Loading: %s\n", path)
+			conf.readConfiguration(path)
+		}
+	}
+	return nil
+}
+
+func (conf *Configuration) LoadAll() {
+	filepath.Walk(".", conf.visit)
 }
 
 func (conf *Configuration) readConfiguration(moduleDefinition string) {

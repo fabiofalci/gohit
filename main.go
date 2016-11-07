@@ -75,13 +75,19 @@ func main() {
 	executor := &Executor{Conf: conf}
 	app := cli.NewApp()
 	app.Version = "0.1.0"
+	var loadAllFiles bool
 	var file string
 
 	app.Flags = []cli.Flag {
 		cli.StringFlag{
-			Name: "file",
-			Usage: "yaml file",
+			Name: "f",
+			Usage: "Load one yaml file",
 			Destination: &file,
+		},
+		cli.BoolFlag{
+			Name: "r",
+			Usage: "Recursively load all yaml files",
+			Destination: &loadAllFiles,
 		},
 	}
 
@@ -89,7 +95,11 @@ func main() {
 		{
 			Name: "show-all",
 			Action: func(c *cli.Context) error {
-				conf.LoadAll(file)
+				if loadAllFiles {
+					conf.LoadAll()
+				} else {
+					conf.LoadFile(file)
+				}
 				conf.ShowAll()
 				return nil
 			},
@@ -97,7 +107,11 @@ func main() {
 		{
 			Name: "show",
 			Action: func(c *cli.Context) error {
-				conf.LoadAll(file)
+				if loadAllFiles {
+					conf.LoadAll()
+				} else {
+					conf.LoadFile(file)
+				}
 				conf.ShowRequest(c.Args().First())
 				return nil
 			},
@@ -105,7 +119,11 @@ func main() {
 		{
 			Name: "run",
 			Action: func(c *cli.Context) error {
-				conf.LoadAll(file)
+				if loadAllFiles {
+					conf.LoadAll()
+				} else {
+					conf.LoadFile(file)
+				}
 				executor.RunRequest(c.Args().First())
 				return nil
 			},
