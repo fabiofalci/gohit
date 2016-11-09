@@ -16,6 +16,8 @@ type Configuration struct {
 	GlobalOptions map[string]bool
 	Endpoints map[string]*Endpoint
 	Requests map[string]*Request
+
+	requestsConfiguration map[string]map[interface{}]interface{}
 }
 
 func NewConfiguration() *Configuration {
@@ -24,15 +26,23 @@ func NewConfiguration() *Configuration {
 		GlobalOptions: make(map[string]bool),
 		Endpoints: make(map[string]*Endpoint),
 		Requests: make(map[string]*Request),
+		requestsConfiguration: make(map[string]map[interface{}]interface{}),
 	}
 	return configuration
 }
 
-func (conf *Configuration) LoadFile(file string) {
+func (conf *Configuration) LoadConfigurationAndEndpoints(file string) {
 	if !strings.HasSuffix(file, ".yaml") {
 		file = file + ".yaml"
 	}
 	conf.readConfiguration(file)
+}
+
+
+func (conf *Configuration) LoadRequests() {
+	for k := range conf.requestsConfiguration {
+		conf.readRequests(conf.requestsConfiguration[k])
+	}
 }
 
 func (conf *Configuration) visit(path string, f os.FileInfo, err error) error {
@@ -70,8 +80,14 @@ func (conf *Configuration) readConfiguration(moduleDefinition string) {
 		}
 	}
 
-	conf.readEndpoints(asMap["endpoints"].(map[interface{}]interface{}), yaml)
-	conf.readRequests(asMap["requests"].(map[interface{}]interface{}))
+	endpointsMap := asMap["endpoints"]
+	if endpointsMap != nil {
+		conf.readEndpoints(endpointsMap.(map[interface{}]interface{}), yaml)
+	}
+	requestsMap := asMap["requests"]
+	if requestsMap != nil {
+		conf.requestsConfiguration[moduleDefinition] = requestsMap.(map[interface{}]interface{})
+	}
 }
 
 func (conf *Configuration) ShowAll() {

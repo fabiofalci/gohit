@@ -96,8 +96,9 @@ func main() {
 				if loadAllFiles {
 					conf.LoadAll()
 				} else {
-					conf.LoadFile(file)
+					conf.LoadConfigurationAndEndpoints(file)
 				}
+				conf.LoadRequests()
 				conf.ShowAll()
 				return nil
 			},
@@ -108,8 +109,9 @@ func main() {
 				if loadAllFiles {
 					conf.LoadAll()
 				} else {
-					conf.LoadFile(file)
+					conf.LoadConfigurationAndEndpoints(file)
 				}
+				conf.LoadRequests()
 				conf.ShowRequest(c.Args().First())
 				return nil
 			},
@@ -120,8 +122,9 @@ func main() {
 				if loadAllFiles {
 					conf.LoadAll()
 				} else {
-					conf.LoadFile(file)
+					conf.LoadConfigurationAndEndpoints(file)
 				}
+				conf.LoadRequests()
 				executor.RunRequest(c.Args().First())
 				return nil
 			},
