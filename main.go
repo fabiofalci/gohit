@@ -24,7 +24,7 @@ const showCurlTemplate = `curl {{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}} 
         {{$key}} \
 	{{- end}}
 {{- end}}
-	-X{{.Method}}
+    -X{{.Method}}
 `
 
 // A separated template for running as it needs to transform the command to an array fo string.
@@ -33,13 +33,11 @@ const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 {{- if .Headers}}
 	{{- range $key, $value := .Headers }}
 -H
-'{{$key}}'
+{{$key}}
 	{{- end}}
 {{- end}}
 {{- if .Options}}
-	{{- range $key, $value := .Options }}
-{{$key}}
-	{{- end}}
+{{.OptionsAsToken}}
 {{- end}}
 -X{{.Method}}`
 
@@ -219,3 +217,16 @@ func executeCurlCommand(command string) {
 func hasResolvedAllVariables(request string) bool {
 	return strings.Index(request, "{") == -1
 }
+
+func (request Request) OptionsAsToken() string {
+	oneLineOptions := ""
+	for option := range request.Options {
+		re := regexp.MustCompile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'")
+		for _, v  := range re.FindAllString(option, -1) {
+			oneLineOptions = oneLineOptions + "\n" + v
+		}
+	}
+
+	return strings.TrimPrefix(oneLineOptions, "\n")
+}
+
