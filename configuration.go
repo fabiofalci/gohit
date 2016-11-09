@@ -14,6 +14,7 @@ type Configuration struct {
 	GlobalUrl string
 	GlobalHeaders map[string]bool
 	GlobalOptions map[string]bool
+	GlobalVariables map[string]interface{}
 	Endpoints map[string]*Endpoint
 	Requests map[string]*Request
 
@@ -24,6 +25,7 @@ func NewConfiguration() *Configuration {
 	configuration := &Configuration{
 		GlobalHeaders: make(map[string]bool),
 		GlobalOptions: make(map[string]bool),
+		GlobalVariables: make(map[string]interface{}),
 		Endpoints: make(map[string]*Endpoint),
 		Requests: make(map[string]*Request),
 		requestsConfiguration: make(map[string]map[interface{}]interface{}),
@@ -152,28 +154,36 @@ func (conf *Configuration) addRequest(name string, value interface{}) {
 
 	for k := range request.Parameters {
 		toReplace := "{"+k.(string)+"}"
-		replacement := conf.getReplacement(request.Parameters[k])
-		request.Url = strings.Replace(request.Url, toReplace, replacement, -1)
-		request.Path = strings.Replace(request.Path, toReplace, replacement, -1)
-		request.Query = strings.Replace(request.Query, toReplace, replacement, -1)
+		conf.replaceAll(request, toReplace, request.Parameters[k])
+	}
 
-		for header := range request.Headers {
-			replaced := strings.Replace(header, toReplace, replacement, -1)
-			if (header != replaced) {
-				request.Headers[replaced] = true
-				delete(request.Headers, header)
-			}
-		}
-		for option := range request.Options {
-			replaced := strings.Replace(option, toReplace, replacement, -1)
-			if (option != replaced) {
-				request.Options[replaced] = true
-				delete(request.Options, option)
-			}
-		}
+	for k := range conf.GlobalVariables {
+		toReplace := "{"+k+"}"
+		conf.replaceAll(request, toReplace, conf.GlobalVariables[k])
 	}
 }
 
+func (conf *Configuration) replaceAll(request *Request, toReplace string, value interface{}) {
+	replacement := conf.getReplacement(value)
+	request.Url = strings.Replace(request.Url, toReplace, replacement, -1)
+	request.Path = strings.Replace(request.Path, toReplace, replacement, -1)
+	request.Query = strings.Replace(request.Query, toReplace, replacement, -1)
+
+	for header := range request.Headers {
+		replaced := strings.Replace(header, toReplace, replacement, -1)
+		if (header != replaced) {
+			request.Headers[replaced] = true
+			delete(request.Headers, header)
+		}
+	}
+	for option := range request.Options {
+		replaced := strings.Replace(option, toReplace, replacement, -1)
+		if (option != replaced) {
+			request.Options[replaced] = true
+			delete(request.Options, option)
+		}
+	}
+}
 
 func (conf *Configuration) getReplacement(value interface{}) string {
 	switch value.(type) {
@@ -263,10 +273,20 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 		for i := range options {
 			conf.GlobalOptions[options[i].(string)] = true
 		}
+	} else if name == "files" {
+		files, _ := yaml.Get(name).Array()
+		for i := range files {
+			conf.readConfiguration(files[i].(string))
+		}
+	} else if name == "variables" {
+		variables, _ := yaml.Get(name).Map()
+		for i := range variables {
+			conf.GlobalVariables[i.(string)] = variables[i]
+		}
 	}
 }
 
 func (conf *Configuration) isConfiguration(name string) bool {
-	return name == "headers" || name == "url" || name == "options"
+	return name == "headers" || name == "url" || name == "options" || name == "files" || name == "variables"
 }
 
