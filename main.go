@@ -91,7 +91,7 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name: "show-all",
+			Name: "requests",
 			Action: func(c *cli.Context) error {
 				if loadAllFiles {
 					conf.LoadAll()
@@ -99,7 +99,20 @@ func main() {
 					conf.LoadConfigurationAndEndpoints(file)
 				}
 				conf.LoadRequests()
-				conf.ShowAll()
+				conf.ShowRequests()
+				return nil
+			},
+		},
+		{
+			Name: "endpoints",
+			Action: func(c *cli.Context) error {
+				if loadAllFiles {
+					conf.LoadAll()
+				} else {
+					conf.LoadConfigurationAndEndpoints(file)
+				}
+				conf.LoadRequests()
+				conf.ShowEndpoints()
 				return nil
 			},
 		},
@@ -112,7 +125,7 @@ func main() {
 					conf.LoadConfigurationAndEndpoints(file)
 				}
 				conf.LoadRequests()
-				conf.ShowRequest(c.Args().First())
+				conf.ShowRequestOrEndpoint(c.Args().First())
 				return nil
 			},
 		},
@@ -154,6 +167,7 @@ func (executor *Executor) RunRequest(requestName string) {
 
 func (endpoint Endpoint) show() {
 	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
+	fmt.Printf("Endpoint %v:\n", endpoint.Name)
 	t.Execute(os.Stdout, endpoint)
 }
 
