@@ -143,7 +143,10 @@ func (executor *Executor) RunRequest(requestName string) {
 
 	endpoint := executor.Conf.Endpoints[requestName]
 	if endpoint != nil {
-		endpoint.run()
+		m := make(map[interface{}]interface{})
+		m["endpoint"] = requestName
+		request := executor.Conf.createRequest(requestName, m)
+		request.run()
 	}
 }
 

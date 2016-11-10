@@ -128,12 +128,15 @@ func (conf *Configuration) readEndpoints(endpointMap map[interface{}]interface{}
 }
 
 func (conf *Configuration) addRequest(name string, value interface{}) {
+	conf.Requests[name] = conf.createRequest(name, value)
+}
+
+func (conf *Configuration) createRequest(name string, value interface{}) *Request {
 	request := &Request{
 		Name: name,
 		Headers: make(map[string]bool),
 		Options: make(map[string]bool),
 	}
-	conf.Requests[name] = request
 
 	request.Parameters = value.(map[interface{}]interface{})
 
@@ -161,6 +164,8 @@ func (conf *Configuration) addRequest(name string, value interface{}) {
 		toReplace := "{"+k+"}"
 		conf.replaceAll(request, toReplace, conf.GlobalVariables[k])
 	}
+
+	return request
 }
 
 func (conf *Configuration) replaceAll(request *Request, toReplace string, value interface{}) {
