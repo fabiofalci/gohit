@@ -138,6 +138,7 @@ func (executor *Executor) RunRequest(requestName string) {
 	request := executor.Conf.Requests[requestName]
 	if request != nil {
 		request.run()
+		return
 	}
 
 	endpoint := executor.Conf.Endpoints[requestName]
