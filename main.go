@@ -92,6 +92,7 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name: "requests",
+			ShortName: "r",
 			Action: func(c *cli.Context) error {
 				if loadAllFiles {
 					conf.LoadAll()
@@ -105,6 +106,7 @@ func main() {
 		},
 		{
 			Name: "endpoints",
+			ShortName: "e",
 			Action: func(c *cli.Context) error {
 				if loadAllFiles {
 					conf.LoadAll()
