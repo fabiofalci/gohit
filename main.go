@@ -15,26 +15,26 @@ import (
 
 const showCurlTemplate = `curl {{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}} \
 {{- if .Headers}}
-	{{- range $key, $value := .Headers }}
+        {{- range $key, $value := .Headers }}
         -H '{{$key}}' \
-	{{- end}}
+        {{- end}}
 {{- end}}
 {{- if .Options}}
-	{{- range $key, $value := .Options }}
+        {{- range $key, $value := .Options }}
         {{$key}} \
-	{{- end}}
+        {{- end}}
 {{- end}}
-    -X{{.Method}}
+        -X{{.Method}}
 `
 
 // A separated template for running as it needs to transform the command to an array fo string.
 // It splits on newline.
 const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 {{- if .Headers}}
-	{{- range $key, $value := .Headers }}
+        {{- range $key, $value := .Headers }}
 -H
 {{$key}}
-	{{- end}}
+        {{- end}}
 {{- end}}
 {{- if .Options}}
 {{.OptionsAsToken}}
