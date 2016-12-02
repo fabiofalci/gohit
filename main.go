@@ -29,7 +29,7 @@ const showCurlTemplate = `curl '{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 
 // A separated template for running as it needs to transform the command to an array fo string.
 // It splits on newline.
-const runCurlTemplate = `'{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}'
+const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 {{- if .Headers}}
         {{- range $key, $value := .Headers }}
 -H
