@@ -1,16 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"strings"
-	"text/template"
-
-	"bufio"
-	"bytes"
 	"github.com/urfave/cli"
-	"os/exec"
-	"regexp"
 )
 
 type Endpoint struct {
@@ -39,13 +31,9 @@ type Executable interface {
 	GetOptions() map[string]bool
 }
 
-type Executor struct {
-	Conf *Configuration
-}
-
 func main() {
 	conf := NewConfiguration()
-	executor := &Executor{Conf: conf}
+	executor := &Executor{conf: conf}
 	app := cli.NewApp()
 	app.Version = "0.1.0"
 	printer := NewPrinter(conf)
@@ -106,22 +94,6 @@ func main() {
 	app.Run(os.Args)
 }
 
-func (executor *Executor) RunRequest(requestName string) {
-	request := executor.Conf.Requests[requestName]
-	if request != nil {
-		runExecutable(request)
-		return
-	}
-
-	endpoint := executor.Conf.Endpoints[requestName]
-	if endpoint != nil {
-		m := make(map[interface{}]interface{})
-		m["endpoint"] = requestName
-		request := executor.Conf.createRequest(requestName, m)
-		runExecutable(request)
-	}
-}
-
 func (endpoint *Endpoint) GetName() string {
 	return endpoint.Name
 }
@@ -136,44 +108,4 @@ func (endpoint *Endpoint) GetOptions() map[string]bool {
 
 func (request *Request) GetOptions() map[string]bool {
 	return request.Options
-}
-
-func runExecutable(executable Executable) {
-	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
-	fmt.Printf("%v:\n", executable.GetName())
-	buf := new(bytes.Buffer)
-	t.Execute(buf, executable)
-
-	requestAsString := buf.String()
-
-	if !hasResolvedAllVariables(requestAsString) {
-		re := regexp.MustCompile("{(.+?)}")
-		for _, v := range re.FindAllString(requestAsString, -1) {
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Printf("Enter %v: ", v)
-			value, _ := reader.ReadString('\n')
-			value = strings.TrimSpace(value)
-			requestAsString = strings.Replace(requestAsString, v, value, -1)
-		}
-	}
-
-	executeCurlCommand(requestAsString)
-}
-
-func executeCurlCommand(command string) {
-	cmd := exec.Command("curl", strings.Split(command, "\n")...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		return
-	}
-	fmt.Println(out.String())
-}
-
-func hasResolvedAllVariables(request string) bool {
-	return strings.Index(request, "{") == -1
 }
