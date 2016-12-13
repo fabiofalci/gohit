@@ -154,7 +154,7 @@ func main() {
 func (executor *Executor) RunRequest(requestName string) {
 	request := executor.Conf.Requests[requestName]
 	if request != nil {
-		request.run()
+		runExecutable(request)
 		return
 	}
 
@@ -163,7 +163,7 @@ func (executor *Executor) RunRequest(requestName string) {
 		m := make(map[interface{}]interface{})
 		m["endpoint"] = requestName
 		request := executor.Conf.createRequest(requestName, m)
-		request.run()
+		runExecutable(request)
 	}
 }
 
@@ -181,11 +181,11 @@ func showExecutable(executable Executable) {
 	t.Execute(os.Stdout, executable)
 }
 
-func (request Request) run() {
+func runExecutable(executable Executable) {
 	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
-	fmt.Printf("%v:\n", request.Name)
+	fmt.Printf("%v:\n", executable.GetName())
 	buf := new(bytes.Buffer)
-	t.Execute(buf, request)
+	t.Execute(buf, executable)
 
 	requestAsString := buf.String()
 
@@ -201,28 +201,6 @@ func (request Request) run() {
 	}
 
 	executeCurlCommand(requestAsString)
-}
-
-func (endpoint Endpoint) run() {
-	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
-	fmt.Printf("%v:\n", endpoint.Name)
-	buf := new(bytes.Buffer)
-	t.Execute(buf, endpoint)
-
-	endpointAsString := buf.String()
-
-	if !hasResolvedAllVariables(endpointAsString) {
-		re := regexp.MustCompile("{(.+?)}")
-		for _, v := range re.FindAllString(endpointAsString, -1) {
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Printf("Enter %v: ", v)
-			value, _ := reader.ReadString('\n')
-			value = strings.TrimSpace(value)
-			endpointAsString = strings.Replace(endpointAsString, v, value, -1)
-		}
-	}
-
-	executeCurlCommand(endpointAsString)
 }
 
 func executeCurlCommand(command string) {
