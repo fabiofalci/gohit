@@ -33,14 +33,23 @@ func NewConfiguration() *Configuration {
 	return configuration
 }
 
-func (conf *Configuration) LoadConfigurationAndEndpoints(file string) {
+func (conf *Configuration) Init(loadAllFiles bool, file string) {
+	if loadAllFiles {
+		conf.loadAll()
+	} else {
+		conf.loadConfigurationAndEndpoints(file)
+	}
+	conf.loadRequests()
+}
+
+func (conf *Configuration) loadConfigurationAndEndpoints(file string) {
 	if !strings.HasSuffix(file, ".yaml") {
 		file = file + ".yaml"
 	}
 	conf.readConfiguration(file)
 }
 
-func (conf *Configuration) LoadRequests() {
+func (conf *Configuration) loadRequests() {
 	for k := range conf.requestsConfiguration {
 		conf.readRequests(conf.requestsConfiguration[k])
 	}
@@ -56,7 +65,7 @@ func (conf *Configuration) visit(path string, f os.FileInfo, err error) error {
 	return nil
 }
 
-func (conf *Configuration) LoadAll() {
+func (conf *Configuration) loadAll() {
 	filepath.Walk(".", conf.visit)
 }
 
@@ -88,35 +97,6 @@ func (conf *Configuration) readConfiguration(moduleDefinition string) {
 	requestsMap := asMap["requests"]
 	if requestsMap != nil {
 		conf.requestsConfiguration[moduleDefinition] = requestsMap.(map[interface{}]interface{})
-	}
-}
-
-func (conf *Configuration) ShowRequests() {
-	for name := range conf.Requests {
-		request := conf.Requests[name]
-		showExecutable(request)
-		fmt.Println("")
-	}
-}
-
-func (conf *Configuration) ShowEndpoints() {
-	for name := range conf.Endpoints {
-		endpoint := conf.Endpoints[name]
-		showExecutable(endpoint)
-		fmt.Println("")
-	}
-}
-
-func (conf *Configuration) ShowRequestOrEndpoint(requestName string) {
-	request := conf.Requests[requestName]
-	if request != nil {
-		showExecutable(request)
-		return
-	}
-
-	endpoint := conf.Endpoints[requestName]
-	if endpoint != nil {
-		showExecutable(endpoint)
 	}
 }
 

@@ -48,6 +48,8 @@ func main() {
 	executor := &Executor{Conf: conf}
 	app := cli.NewApp()
 	app.Version = "0.1.0"
+	printer := NewPrinter(conf)
+
 	var loadAllFiles bool
 	var file string
 
@@ -69,13 +71,8 @@ func main() {
 			Name:      "requests",
 			ShortName: "r",
 			Action: func(c *cli.Context) error {
-				if loadAllFiles {
-					conf.LoadAll()
-				} else {
-					conf.LoadConfigurationAndEndpoints(file)
-				}
-				conf.LoadRequests()
-				conf.ShowRequests()
+				conf.Init(loadAllFiles, file)
+				printer.ShowRequests()
 				return nil
 			},
 		},
@@ -83,38 +80,23 @@ func main() {
 			Name:      "endpoints",
 			ShortName: "e",
 			Action: func(c *cli.Context) error {
-				if loadAllFiles {
-					conf.LoadAll()
-				} else {
-					conf.LoadConfigurationAndEndpoints(file)
-				}
-				conf.LoadRequests()
-				conf.ShowEndpoints()
+				conf.Init(loadAllFiles, file)
+				printer.ShowEndpoints()
 				return nil
 			},
 		},
 		{
 			Name: "show",
 			Action: func(c *cli.Context) error {
-				if loadAllFiles {
-					conf.LoadAll()
-				} else {
-					conf.LoadConfigurationAndEndpoints(file)
-				}
-				conf.LoadRequests()
-				conf.ShowRequestOrEndpoint(c.Args().First())
+				conf.Init(loadAllFiles, file)
+				printer.ShowRequestOrEndpoint(c.Args().First())
 				return nil
 			},
 		},
 		{
 			Name: "run",
 			Action: func(c *cli.Context) error {
-				if loadAllFiles {
-					conf.LoadAll()
-				} else {
-					conf.LoadConfigurationAndEndpoints(file)
-				}
-				conf.LoadRequests()
+				conf.Init(loadAllFiles, file)
 				executor.RunRequest(c.Args().First())
 				return nil
 			},
@@ -154,12 +136,6 @@ func (endpoint *Endpoint) GetOptions() map[string]bool {
 
 func (request *Request) GetOptions() map[string]bool {
 	return request.Options
-}
-
-func showExecutable(executable Executable) {
-	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
-	fmt.Printf("Endpoint %v:\n", executable.GetName())
-	t.Execute(os.Stdout, executable)
 }
 
 func runExecutable(executable Executable) {
