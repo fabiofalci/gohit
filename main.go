@@ -1,16 +1,16 @@
 package main
 
 import (
-	"os"
-	"text/template"
-	"strings"
 	"fmt"
+	"os"
+	"strings"
+	"text/template"
 
-	"github.com/urfave/cli"
-	"bytes"
-	"regexp"
 	"bufio"
+	"bytes"
+	"github.com/urfave/cli"
 	"os/exec"
+	"regexp"
 )
 
 const showCurlTemplate = `curl '{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}' \
@@ -42,26 +42,24 @@ const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 -X{{.Method}}`
 
 type Endpoint struct {
-	Name string
-	Url string
-	Path string
-	Query string
-	Method string
+	Name    string
+	Url     string
+	Path    string
+	Query   string
+	Method  string
 	Headers map[string]bool
 	Options map[string]bool
-	HasData bool
 }
 
 type Request struct {
-	Name string
+	Name       string
+	Url        string
+	Path       string
+	Query      string
+	Method     string
+	Headers    map[string]bool
+	Options    map[string]bool
 	Parameters map[interface{}]interface{}
-
-	Url string
-	Path string
-	Query string
-	Method string
-	Headers map[string]bool
-	Options map[string]bool
 }
 
 type Executor struct {
@@ -76,22 +74,22 @@ func main() {
 	var loadAllFiles bool
 	var file string
 
-	app.Flags = []cli.Flag {
+	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "f",
-			Usage: "Load one yaml file",
+			Name:        "f",
+			Usage:       "Load one yaml file",
 			Destination: &file,
 		},
 		cli.BoolFlag{
-			Name: "r",
-			Usage: "Recursively load all yaml files",
+			Name:        "r",
+			Usage:       "Recursively load all yaml files",
 			Destination: &loadAllFiles,
 		},
 	}
 
 	app.Commands = []cli.Command{
 		{
-			Name: "requests",
+			Name:      "requests",
 			ShortName: "r",
 			Action: func(c *cli.Context) error {
 				if loadAllFiles {
@@ -105,7 +103,7 @@ func main() {
 			},
 		},
 		{
-			Name: "endpoints",
+			Name:      "endpoints",
 			ShortName: "e",
 			Action: func(c *cli.Context) error {
 				if loadAllFiles {
@@ -165,8 +163,6 @@ func (executor *Executor) RunRequest(requestName string) {
 	}
 }
 
-
-
 func (endpoint Endpoint) show() {
 	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
 	fmt.Printf("Endpoint %v:\n", endpoint.Name)
@@ -187,9 +183,9 @@ func (request Request) run() {
 
 	requestAsString := buf.String()
 
-	if (!hasResolvedAllVariables(requestAsString)) {
+	if !hasResolvedAllVariables(requestAsString) {
 		re := regexp.MustCompile("{(.+?)}")
-		for _, v  := range re.FindAllString(requestAsString, -1) {
+		for _, v := range re.FindAllString(requestAsString, -1) {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Printf("Enter %v: ", v)
 			value, _ := reader.ReadString('\n')
@@ -209,9 +205,9 @@ func (endpoint Endpoint) run() {
 
 	endpointAsString := buf.String()
 
-	if (!hasResolvedAllVariables(endpointAsString)) {
+	if !hasResolvedAllVariables(endpointAsString) {
 		re := regexp.MustCompile("{(.+?)}")
-		for _, v  := range re.FindAllString(endpointAsString, -1) {
+		for _, v := range re.FindAllString(endpointAsString, -1) {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Printf("Enter %v: ", v)
 			value, _ := reader.ReadString('\n')
@@ -245,11 +241,10 @@ func (request Request) OptionsAsToken() string {
 	oneLineOptions := ""
 	for option := range request.Options {
 		re := regexp.MustCompile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'")
-		for _, v  := range re.FindAllString(option, -1) {
+		for _, v := range re.FindAllString(option, -1) {
 			oneLineOptions = oneLineOptions + "\n" + v
 		}
 	}
 
 	return strings.TrimPrefix(oneLineOptions, "\n")
 }
-

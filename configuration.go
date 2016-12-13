@@ -1,33 +1,33 @@
 package main
 
 import (
-	"strings"
-	"io/ioutil"
-	"github.com/smallfish/simpleyaml"
 	"fmt"
-	"strconv"
-	"path/filepath"
+	"github.com/smallfish/simpleyaml"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 type Configuration struct {
-	GlobalUrl string
-	GlobalHeaders map[string]bool
-	GlobalOptions map[string]bool
+	GlobalUrl       string
+	GlobalHeaders   map[string]bool
+	GlobalOptions   map[string]bool
 	GlobalVariables map[string]interface{}
-	Endpoints map[string]*Endpoint
-	Requests map[string]*Request
+	Endpoints       map[string]*Endpoint
+	Requests        map[string]*Request
 
 	requestsConfiguration map[string]map[interface{}]interface{}
 }
 
 func NewConfiguration() *Configuration {
 	configuration := &Configuration{
-		GlobalHeaders: make(map[string]bool),
-		GlobalOptions: make(map[string]bool),
-		GlobalVariables: make(map[string]interface{}),
-		Endpoints: make(map[string]*Endpoint),
-		Requests: make(map[string]*Request),
+		GlobalHeaders:         make(map[string]bool),
+		GlobalOptions:         make(map[string]bool),
+		GlobalVariables:       make(map[string]interface{}),
+		Endpoints:             make(map[string]*Endpoint),
+		Requests:              make(map[string]*Request),
 		requestsConfiguration: make(map[string]map[interface{}]interface{}),
 	}
 	return configuration
@@ -39,7 +39,6 @@ func (conf *Configuration) LoadConfigurationAndEndpoints(file string) {
 	}
 	conf.readConfiguration(file)
 }
-
 
 func (conf *Configuration) LoadRequests() {
 	for k := range conf.requestsConfiguration {
@@ -141,7 +140,7 @@ func (conf *Configuration) addRequest(name string, value interface{}) {
 
 func (conf *Configuration) createRequest(name string, value interface{}) *Request {
 	request := &Request{
-		Name: name,
+		Name:    name,
 		Headers: make(map[string]bool),
 		Options: make(map[string]bool),
 	}
@@ -155,21 +154,21 @@ func (conf *Configuration) createRequest(name string, value interface{}) *Reques
 	request.Path = endpoint.Path
 	request.Query = endpoint.Query
 
-	for k,v := range endpoint.Headers {
+	for k, v := range endpoint.Headers {
 		request.Headers[k] = v
 	}
 
-	for k,v := range endpoint.Options {
+	for k, v := range endpoint.Options {
 		request.Options[k] = v
 	}
 
 	for k := range request.Parameters {
-		toReplace := "{"+k.(string)+"}"
+		toReplace := "{" + k.(string) + "}"
 		conf.replaceAll(request, toReplace, request.Parameters[k])
 	}
 
 	for k := range conf.GlobalVariables {
-		toReplace := "{"+k+"}"
+		toReplace := "{" + k + "}"
 		conf.replaceAll(request, toReplace, conf.GlobalVariables[k])
 	}
 
@@ -184,14 +183,14 @@ func (conf *Configuration) replaceAll(request *Request, toReplace string, value 
 
 	for header := range request.Headers {
 		replaced := strings.Replace(header, toReplace, replacement, -1)
-		if (header != replaced) {
+		if header != replaced {
 			request.Headers[replaced] = true
 			delete(request.Headers, header)
 		}
 	}
 	for option := range request.Options {
 		replaced := strings.Replace(option, toReplace, replacement, -1)
-		if (option != replaced) {
+		if option != replaced {
 			request.Options[replaced] = true
 			delete(request.Options, option)
 		}
@@ -211,13 +210,12 @@ func (conf *Configuration) getReplacement(value interface{}) string {
 	}
 }
 
-
 func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
 	endpoint := &Endpoint{
-		Name: name,
+		Name:    name,
 		Headers: make(map[string]bool),
 		Options: make(map[string]bool),
-	};
+	}
 	conf.Endpoints[name] = endpoint
 
 	path, err := yaml.GetPath("endpoints", name, "path").String()
@@ -243,11 +241,6 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
 		endpoint.Method = method
 	} else {
 		endpoint.Method = "GET"
-	}
-
-	data, err := yaml.GetPath("endpoints", name, "data").Bool()
-	if err == nil {
-		endpoint.HasData = data
 	}
 
 	headers, err := yaml.GetPath("endpoints", name, "headers").Array()
@@ -302,4 +295,3 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 func (conf *Configuration) isConfiguration(name string) bool {
 	return name == "headers" || name == "url" || name == "options" || name == "files" || name == "variables"
 }
-
