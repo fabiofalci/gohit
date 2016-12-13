@@ -10,11 +10,6 @@ type Printer struct {
 	conf *Configuration
 }
 
-func NewPrinter(conf *Configuration) *Printer {
-	printer := &Printer{conf: conf}
-	return printer
-}
-
 func (printer *Printer) ShowRequests() {
 	for name := range printer.conf.Requests {
 		request := printer.conf.Requests[name]
