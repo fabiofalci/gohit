@@ -62,6 +62,10 @@ type Request struct {
 	Parameters map[interface{}]interface{}
 }
 
+type Executable interface {
+	GetName() string
+}
+
 type Executor struct {
 	Conf *Configuration
 }
@@ -163,16 +167,18 @@ func (executor *Executor) RunRequest(requestName string) {
 	}
 }
 
-func (endpoint Endpoint) show() {
-	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
-	fmt.Printf("Endpoint %v:\n", endpoint.Name)
-	t.Execute(os.Stdout, endpoint)
+func (endpoint *Endpoint) GetName() string {
+	return endpoint.Name
 }
 
-func (request Request) show() {
+func (request *Request) GetName() string {
+	return request.Name
+}
+
+func showExecutable(executable Executable) {
 	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
-	fmt.Printf("Request %v:\n", request.Name)
-	t.Execute(os.Stdout, request)
+	fmt.Printf("Endpoint %v:\n", executable.GetName())
+	t.Execute(os.Stdout, executable)
 }
 
 func (request Request) run() {

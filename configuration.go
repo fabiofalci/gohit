@@ -94,15 +94,15 @@ func (conf *Configuration) readConfiguration(moduleDefinition string) {
 func (conf *Configuration) ShowRequests() {
 	for name := range conf.Requests {
 		request := conf.Requests[name]
-		request.show()
+		showExecutable(request)
 		fmt.Println("")
 	}
 }
 
 func (conf *Configuration) ShowEndpoints() {
 	for name := range conf.Endpoints {
-		request := conf.Endpoints[name]
-		request.show()
+		endpoint := conf.Endpoints[name]
+		showExecutable(endpoint)
 		fmt.Println("")
 	}
 }
@@ -110,13 +110,13 @@ func (conf *Configuration) ShowEndpoints() {
 func (conf *Configuration) ShowRequestOrEndpoint(requestName string) {
 	request := conf.Requests[requestName]
 	if request != nil {
-		request.show()
+		showExecutable(request)
 		return
 	}
 
 	endpoint := conf.Endpoints[requestName]
 	if endpoint != nil {
-		endpoint.show()
+		showExecutable(endpoint)
 	}
 }
 
