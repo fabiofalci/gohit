@@ -13,34 +13,6 @@ import (
 	"regexp"
 )
 
-const showCurlTemplate = `curl '{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}' \
-{{- if .Headers}}
-        {{- range $key, $value := .Headers }}
-        -H '{{$key}}' \
-        {{- end}}
-{{- end}}
-{{- if .Options}}
-        {{- range $key, $value := .Options }}
-        {{$key}} \
-        {{- end}}
-{{- end}}
-        -X{{.Method}}
-`
-
-// A separated template for running as it needs to transform the command to an array fo string.
-// It splits on newline.
-const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
-{{- if .Headers}}
-        {{- range $key, $value := .Headers }}
--H
-{{$key}}
-        {{- end}}
-{{- end}}
-{{- if .Options}}
-{{.OptionsAsToken}}
-{{- end}}
--X{{.Method}}`
-
 type Endpoint struct {
 	Name    string
 	Url     string
@@ -64,6 +36,7 @@ type Request struct {
 
 type Executable interface {
 	GetName() string
+	GetOptions() map[string]bool
 }
 
 type Executor struct {
@@ -175,6 +148,14 @@ func (request *Request) GetName() string {
 	return request.Name
 }
 
+func (endpoint *Endpoint) GetOptions() map[string]bool {
+	return endpoint.Options
+}
+
+func (request *Request) GetOptions() map[string]bool {
+	return request.Options
+}
+
 func showExecutable(executable Executable) {
 	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
 	fmt.Printf("Endpoint %v:\n", executable.GetName())
@@ -219,16 +200,4 @@ func executeCurlCommand(command string) {
 
 func hasResolvedAllVariables(request string) bool {
 	return strings.Index(request, "{") == -1
-}
-
-func (request Request) OptionsAsToken() string {
-	oneLineOptions := ""
-	for option := range request.Options {
-		re := regexp.MustCompile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'")
-		for _, v := range re.FindAllString(option, -1) {
-			oneLineOptions = oneLineOptions + "\n" + v
-		}
-	}
-
-	return strings.TrimPrefix(oneLineOptions, "\n")
 }
