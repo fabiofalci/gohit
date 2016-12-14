@@ -33,7 +33,6 @@ func (executor *Executor) RunRequest(requestName string) {
 
 func (executor *Executor) runExecutable(executable Executable) {
 	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
-	fmt.Printf("%v:\n", executable.GetName())
 	buf := new(bytes.Buffer)
 	t.Execute(buf, executable)
 
