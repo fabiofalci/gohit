@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"text/template"
+	"sort"
 )
 
 type Printer struct {
@@ -11,7 +12,14 @@ type Printer struct {
 }
 
 func (printer *Printer) ShowRequests() {
-	for name := range printer.conf.Requests {
+	keys := make([]string, len(printer.conf.Requests))
+	i := 0
+	for k := range printer.conf.Requests {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	for _, name := range keys {
 		request := printer.conf.Requests[name]
 		printer.showExecutable(request)
 		fmt.Println("")
@@ -19,7 +27,14 @@ func (printer *Printer) ShowRequests() {
 }
 
 func (printer *Printer) ShowEndpoints() {
-	for name := range printer.conf.Endpoints {
+	keys := make([]string, len(printer.conf.Endpoints))
+	i := 0
+	for k := range printer.conf.Endpoints {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	for _, name := range keys {
 		endpoint := printer.conf.Endpoints[name]
 		printer.showExecutable(endpoint)
 		fmt.Println("")
