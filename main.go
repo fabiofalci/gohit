@@ -40,6 +40,7 @@ func main() {
 
 	var loadAllFiles bool
 	var file string
+	var directory string
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -52,6 +53,12 @@ func main() {
 			Usage:       "Recursively load all yaml files",
 			Destination: &loadAllFiles,
 		},
+		cli.StringFlag{
+			Name:        "d",
+			Usage:       "Specify directory to load the yaml files",
+			Destination: &directory,
+			Value:       ".",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -59,7 +66,7 @@ func main() {
 			Name:      "requests",
 			ShortName: "r",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, file)
+				conf.Init(loadAllFiles, directory, file)
 				printer.ShowRequests()
 				return nil
 			},
@@ -68,7 +75,7 @@ func main() {
 			Name:      "endpoints",
 			ShortName: "e",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, file)
+				conf.Init(loadAllFiles, directory, file)
 				printer.ShowEndpoints()
 				return nil
 			},
@@ -76,7 +83,7 @@ func main() {
 		{
 			Name: "show",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, file)
+				conf.Init(loadAllFiles, directory, file)
 				printer.ShowRequestOrEndpoint(c.Args().First())
 				return nil
 			},
@@ -84,7 +91,7 @@ func main() {
 		{
 			Name: "run",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, file)
+				conf.Init(loadAllFiles, directory, file)
 				executor.RunRequest(c.Args().First())
 				return nil
 			},

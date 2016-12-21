@@ -17,6 +17,7 @@ type Configuration struct {
 	GlobalVariables map[string]interface{}
 	Endpoints       map[string]*Endpoint
 	Requests        map[string]*Request
+	directory       string
 
 	requestsConfiguration map[string]map[interface{}]interface{}
 }
@@ -33,7 +34,8 @@ func NewConfiguration() *Configuration {
 	return configuration
 }
 
-func (conf *Configuration) Init(loadAllFiles bool, file string) {
+func (conf *Configuration) Init(loadAllFiles bool, directory string, file string) {
+	conf.directory = directory
 	if loadAllFiles {
 		conf.loadAll()
 	} else {
@@ -46,7 +48,11 @@ func (conf *Configuration) loadConfigurationAndEndpoints(file string) {
 	if !strings.HasSuffix(file, ".yaml") {
 		file = file + ".yaml"
 	}
-	conf.readConfiguration(file)
+	source, err := ioutil.ReadFile(conf.directory + "/" + file)
+	if err != nil {
+		panic(err)
+	}
+	conf.readConfiguration(file, source)
 }
 
 func (conf *Configuration) loadRequests() {
@@ -59,22 +65,21 @@ func (conf *Configuration) visit(path string, f os.FileInfo, err error) error {
 	if !f.IsDir() {
 		if strings.HasSuffix(path, ".yaml") {
 			fmt.Printf("Loading: %s\n", path)
-			conf.readConfiguration(path)
+			source, err := ioutil.ReadFile(path)
+			if err != nil {
+				panic(err)
+			}
+			conf.readConfiguration(path, source)
 		}
 	}
 	return nil
 }
 
 func (conf *Configuration) loadAll() {
-	filepath.Walk(".", conf.visit)
+	filepath.Walk(conf.directory, conf.visit)
 }
 
-func (conf *Configuration) readConfiguration(moduleDefinition string) {
-	source, err := ioutil.ReadFile(moduleDefinition)
-	if err != nil {
-		panic(err)
-	}
-
+func (conf *Configuration) readConfiguration(moduleDefinition string, source []byte) {
 	yaml, err := simpleyaml.NewYaml(source)
 	if err != nil {
 		panic(err)
@@ -262,7 +267,12 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 	} else if name == "files" {
 		files, _ := yaml.Get(name).Array()
 		for i := range files {
-			conf.readConfiguration(files[i].(string))
+			fileName := files[i].(string)
+			source, err := ioutil.ReadFile(conf.directory + "/" + fileName)
+			if err != nil {
+				panic(err)
+			}
+			conf.readConfiguration(fileName, source)
 		}
 	} else if name == "variables" {
 		variables, _ := yaml.Get(name).Map()
