@@ -132,8 +132,11 @@ func (conf *Configuration) createRequest(name string, value interface{}) *Reques
 
 	request.Parameters = value.(map[interface{}]interface{})
 
-	endpointName := request.Parameters["endpoint"]
-	endpoint := conf.Endpoints[endpointName.(string)]
+	endpointName := request.Parameters["endpoint"].(string)
+	endpoint := conf.Endpoints[endpointName]
+	if endpoint == nil {
+		panic(fmt.Sprintf("Cannot find endpoint %v", endpointName))
+	}
 	request.Method = endpoint.Method
 	request.Url = endpoint.Url
 	request.Path = endpoint.Path
