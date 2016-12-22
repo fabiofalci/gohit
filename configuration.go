@@ -92,6 +92,8 @@ func (conf *Configuration) readConfiguration(moduleDefinition string, source []b
 	for key := range asMap {
 		if conf.isConfiguration(key.(string)) {
 			conf.addConfiguration(key.(string), yaml)
+		} else if key != "endpoints" && key != "requests" {
+			panic(fmt.Sprintf("Invalid yaml attribute '%v'", key))
 		}
 	}
 
