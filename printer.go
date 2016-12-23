@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"text/template"
 	"sort"
+	"io"
 )
 
 type Printer struct {
-	conf *Configuration
+	conf   *Configuration
+	writer io.Writer
 }
 
 func (printer *Printer) ShowRequests() {
@@ -22,7 +23,7 @@ func (printer *Printer) ShowRequests() {
 	for _, name := range keys {
 		request := printer.conf.Requests[name]
 		printer.showExecutable(request)
-		fmt.Println("")
+		fmt.Fprintln(printer.writer, "")
 	}
 }
 
@@ -37,7 +38,7 @@ func (printer *Printer) ShowEndpoints() {
 	for _, name := range keys {
 		endpoint := printer.conf.Endpoints[name]
 		printer.showExecutable(endpoint)
-		fmt.Println("")
+		fmt.Fprintln(printer.writer, "")
 	}
 }
 
@@ -56,6 +57,6 @@ func (printer *Printer) ShowRequestOrEndpoint(requestName string) {
 
 func (printer *Printer) showExecutable(executable Executable) {
 	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
-	fmt.Printf("Endpoint %v:\n", executable.GetName())
-	t.Execute(os.Stdout, executable)
+	fmt.Fprintf(printer.writer, "Endpoint %v:\n", executable.GetName())
+	t.Execute(printer.writer, executable)
 }

@@ -37,7 +37,7 @@ func main() {
 	executor := &Executor{conf: conf}
 	app := cli.NewApp()
 	app.Version = "0.1.0"
-	printer := &Printer{conf: conf}
+	printer := &Printer{conf: conf, writer: os.Stdout}
 
 	var loadAllFiles bool
 	var file string
