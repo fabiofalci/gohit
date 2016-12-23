@@ -1,0 +1,38 @@
+files:
+  - 'api-endpoints.yaml'
+
+headers:
+  - 'Custom: value'
+
+options:
+  - '--compress'
+  - '--silent'
+  - '-s'
+
+variables:
+  variable: value
+
+requests:
+
+  request1:
+    endpoint: endpoint1
+
+  request2:
+    endpoint: endpoint2
+
+  request3:
+    endpoint: endpoint3
+
+  request4:
+    endpoint: endpoint4
+    name: gohit
+    date: today
+
+  request4_1:
+    endpoint: endpoint4
+    name: gohit1
+    date: today1
+
+  request5:
+    endpoint: endpoint5
+

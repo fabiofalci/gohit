@@ -41,7 +41,20 @@ func (conf *Configuration) Init(loadAllFiles bool, directory string, file string
 	} else {
 		conf.loadConfigurationAndEndpoints(file)
 	}
+	conf.loadEndpointGlobals()
 	conf.loadRequests()
+}
+
+func (conf *Configuration) loadEndpointGlobals() {
+	for _, endpoint := range conf.Endpoints {
+		for globalHeader := range conf.GlobalHeaders {
+			endpoint.Headers[globalHeader] = true
+		}
+
+		for globalOption := range conf.GlobalOptions {
+			endpoint.Options[globalOption] = true
+		}
+	}
 }
 
 func (conf *Configuration) loadConfigurationAndEndpoints(file string) {
@@ -161,7 +174,6 @@ func (conf *Configuration) createRequest(name string, value interface{}) *Reques
 		toReplace := "{" + k + "}"
 		conf.replaceAll(request, toReplace, conf.GlobalVariables[k])
 	}
-
 	return request
 }
 
@@ -240,19 +252,11 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
 		}
 	}
 
-	for globalHeader := range conf.GlobalHeaders {
-		endpoint.Headers[globalHeader] = true
-	}
-
 	options, err := yaml.GetPath("endpoints", name, "options").Array()
 	if err == nil {
 		for i := range options {
 			endpoint.Options[options[i].(string)] = true
 		}
-	}
-
-	for globalOption := range conf.GlobalOptions {
-		endpoint.Options[globalOption] = true
 	}
 }
 

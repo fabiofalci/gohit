@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"github.com/urfave/cli"
+	"fmt"
 )
 
 type Endpoint struct {
@@ -115,4 +116,27 @@ func (endpoint *Endpoint) GetOptions() map[string]bool {
 
 func (request *Request) GetOptions() map[string]bool {
 	return request.Options
+}
+
+func (request *Request) String() string {
+	return fmt.Sprintf("%v %v %v %v %v Headers=%v Options=%v Param=%v", request.Name,
+		request.Method,
+		request.Url,
+		request.Path,
+		request.Query,
+		len(request.Headers),
+		len(request.Options),
+		len(request.Parameters),
+	)
+}
+
+func (endpoint *Endpoint) String() string {
+	return fmt.Sprintf("%v %v %v %v %v Headers=%v Options=%v", endpoint.Name,
+		endpoint.Method,
+		endpoint.Url,
+		endpoint.Path,
+		endpoint.Query,
+		len(endpoint.Headers),
+		len(endpoint.Options),
+	)
 }

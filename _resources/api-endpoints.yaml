@@ -1,0 +1,36 @@
+headers:
+  - 'Accept: application/vnd.github.v3+json'
+  - 'Authorization: bearer a12b3c'
+
+url: https://localhost
+
+options:
+  - '--compress'
+  - '-vvv'
+
+endpoints:
+
+  endpoint1:
+    path: /path1
+
+  endpoint2:
+    method: GET
+    path: /path2/{variable}/something
+    options:
+      - '--silent'
+
+  endpoint3:
+    method: PUT
+    path: /path3
+    headers:
+      - 'Content-length: 0'
+
+  endpoint4:
+    method: POST
+    path: /path4/{variable}
+    query: name={name}&date={date}
+
+  endpoint5:
+    method: DELETE
+    path: /
+
