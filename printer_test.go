@@ -15,7 +15,7 @@ func TestShowEndpoints(t *testing.T) {
 
 	printer.ShowEndpoints()
 
-	if allEndpoints != strings.Trim(b.String(), " \n\t") {
+	if allEndpointsOutput != strings.Trim(b.String(), " \n\t") {
 		t.Error("All endpoints output doesn't look correct")
 	}
 }
@@ -29,12 +29,62 @@ func TestShowRequests(t *testing.T) {
 
 	printer.ShowRequests()
 
-	if allRequests != strings.Trim(b.String(), " \n\t") {
+	if allRequestsOutput != strings.Trim(b.String(), " \n\t") {
 		t.Error("All requests output doesn't look correct")
 	}
 }
 
-var allEndpoints =`Endpoint endpoint1:
+func TestShowEndpoint(t *testing.T) {
+	conf := NewSilentConfiguration()
+	conf.Init(true, "_resources/", "")
+
+	var b bytes.Buffer
+	printer := &Printer{conf: conf, writer: &b}
+
+	printer.ShowRequestOrEndpoint("endpoint1")
+
+	if endpoint1Output != strings.Trim(b.String(), " \n\t") {
+		t.Error("endpoint1 output doesn't look correct")
+	}
+}
+
+func TestShowRequest(t *testing.T) {
+	conf := NewSilentConfiguration()
+	conf.Init(true, "_resources/", "")
+
+	var b bytes.Buffer
+	printer := &Printer{conf: conf, writer: &b}
+
+	printer.ShowRequestOrEndpoint("request1")
+
+	if request1Output != strings.Trim(b.String(), " \n\t") {
+		t.Error("endpoint1 output doesn't look correct")
+	}
+}
+
+var endpoint1Output =`Endpoint endpoint1:
+curl 'https://localhost/path1' \
+        -H 'Accept: application/vnd.github.v3+json' \
+        -H 'Authorization: bearer a12b3c' \
+        -H 'Custom: value' \
+        --compress \
+        --silent \
+        -s \
+        -vvv \
+        -XGET`
+
+var request1Output =`Endpoint request1:
+curl 'https://localhost/path1' \
+        -H 'Accept: application/vnd.github.v3+json' \
+        -H 'Authorization: bearer a12b3c' \
+        -H 'Custom: value' \
+        --compress \
+        --silent \
+        -s \
+        -vvv \
+        -XGET`
+
+var allEndpointsOutput =`Endpoint endpoint1:
 curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
@@ -90,7 +140,7 @@ curl 'https://localhost/' \
         -vvv \
         -XDELETE`
 
-var allRequests = `Endpoint request1:
+var allRequestsOutput = `Endpoint request1:
 curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
