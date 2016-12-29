@@ -7,7 +7,7 @@ import (
 )
 
 func TestShowEndpoints(t *testing.T) {
-	conf := NewConfiguration()
+	conf := NewSilentConfiguration()
 	conf.Init(true, "_resources/", "")
 
 	var b bytes.Buffer
@@ -21,7 +21,7 @@ func TestShowEndpoints(t *testing.T) {
 }
 
 func TestShowRequests(t *testing.T) {
-	conf := NewConfiguration()
+	conf := NewSilentConfiguration()
 	conf.Init(true, "_resources/", "")
 
 	var b bytes.Buffer

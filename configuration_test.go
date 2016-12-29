@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
-	conf := NewConfiguration()
+	conf := NewSilentConfiguration()
 	conf.Init(true, "_resources/", "")
 
 	if len(conf.GlobalHeaders) != 3 {
@@ -24,7 +24,7 @@ func TestLoadAllConfigurationGlobal(t *testing.T) {
 }
 
 func TestLoadAllConfigurationEndpoints(t *testing.T) {
-	conf := NewConfiguration()
+	conf := NewSilentConfiguration()
 	conf.Init(true, "_resources/", "")
 
 	if len(conf.Endpoints) != 5 {
@@ -88,7 +88,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 }
 
 func TestLoadAllConfigurationRequests(t *testing.T) {
-	conf := NewConfiguration()
+	conf := NewSilentConfiguration()
 	conf.Init(true, "_resources/", "")
 
 	if len(conf.Requests) != 6 {

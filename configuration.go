@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"io"
+	"bytes"
 )
 
 type Configuration struct {
@@ -18,11 +20,21 @@ type Configuration struct {
 	Endpoints       map[string]*Endpoint
 	Requests        map[string]*Request
 	directory       string
+	writer          *io.Writer
 
 	requestsConfiguration map[string]map[interface{}]interface{}
 }
 
-func NewConfiguration() *Configuration {
+func NewDefaultConfiguration() *Configuration {
+	return NewConfiguration(os.Stdout)
+}
+
+func NewSilentConfiguration() *Configuration {
+	var out bytes.Buffer
+	return NewConfiguration(&out)
+}
+
+func NewConfiguration(writer io.Writer) *Configuration {
 	configuration := &Configuration{
 		GlobalHeaders:         make(map[string]bool),
 		GlobalOptions:         make(map[string]bool),
@@ -30,6 +42,7 @@ func NewConfiguration() *Configuration {
 		Endpoints:             make(map[string]*Endpoint),
 		Requests:              make(map[string]*Request),
 		requestsConfiguration: make(map[string]map[interface{}]interface{}),
+		writer:                &writer,
 	}
 	return configuration
 }
@@ -77,7 +90,7 @@ func (conf *Configuration) loadRequests() {
 func (conf *Configuration) visit(path string, f os.FileInfo, err error) error {
 	if !f.IsDir() {
 		if strings.HasSuffix(path, ".yaml") {
-			fmt.Printf("Loading: %s\n", path)
+			fmt.Fprintf(*conf.writer, "Loading: %s\n", path)
 			source, err := ioutil.ReadFile(path)
 			if err != nil {
 				panic(err)

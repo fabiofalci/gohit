@@ -33,7 +33,7 @@ type Executable interface {
 }
 
 func main() {
-	conf := NewConfiguration()
+	conf := NewDefaultConfiguration();
 	executor := &Executor{conf: conf}
 	app := cli.NewApp()
 	app.Version = "0.1.0"
