@@ -164,3 +164,8 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 		t.Errorf("Request5 configuration problem %v", request5)
 	}
 }
+
+func TestLoadMissingUrl(t *testing.T) {
+	reader := &ConfigurationReader{}
+	NewConfiguration(reader)
+}

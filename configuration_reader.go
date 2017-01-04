@@ -15,7 +15,7 @@ type ConfigurationReader struct {
 	loadAllFiles    bool
 	directory       string
 	file            string
-	Configurations  map[string][]byte
+	configurations  map[string][]byte
 }
 
 func NewDefaultConfigurationReader(loadAllFiles bool, directory string, file string) *ConfigurationReader {
@@ -32,7 +32,7 @@ func NewConfigurationReader(writer io.Writer, loadAllFiles bool, directory strin
 		loadAllFiles: loadAllFiles,
 		directory: directory,
 		file: file,
-		Configurations: make(map[string][]byte),
+		configurations: make(map[string][]byte),
 	}
 	return confReader
 }
@@ -45,6 +45,14 @@ func (confReader *ConfigurationReader) Read() {
 	}
 }
 
+func (confReader *ConfigurationReader) Configuration() map[string][]byte {
+	return confReader.configurations
+}
+
+func (confReader *ConfigurationReader) Directory() string {
+	return confReader.directory
+}
+
 func (confReader *ConfigurationReader) loadConfigurationAndEndpoints() {
 	if !strings.HasSuffix(confReader.file, ".yaml") {
 		confReader.file = confReader.file + ".yaml"
@@ -53,7 +61,7 @@ func (confReader *ConfigurationReader) loadConfigurationAndEndpoints() {
 	if err != nil {
 		panic(err)
 	}
-	confReader.Configurations[confReader.file] = source
+	confReader.configurations[confReader.file] = source
 }
 
 func (confReader *ConfigurationReader) visit(path string, f os.FileInfo, err error) error {
@@ -64,7 +72,7 @@ func (confReader *ConfigurationReader) visit(path string, f os.FileInfo, err err
 			if err != nil {
 				panic(err)
 			}
-			confReader.Configurations[path] = source
+			confReader.configurations[path] = source
 		}
 	}
 	return nil

@@ -17,10 +17,16 @@ type Configuration struct {
 	Requests        map[string]*Request
 
 	requestsConfiguration map[string]map[interface{}]interface{}
-	reader                *ConfigurationReader
+	reader                ConfReader
 }
 
-func NewConfiguration(confReader *ConfigurationReader) *Configuration {
+type ConfReader interface {
+	Read()
+	Directory() string
+	Configuration() map[string][]byte
+}
+
+func NewConfiguration(confReader ConfReader) *Configuration {
 	configuration := &Configuration{
 		GlobalHeaders:         make(map[string]bool),
 		GlobalOptions:         make(map[string]bool),
@@ -28,7 +34,7 @@ func NewConfiguration(confReader *ConfigurationReader) *Configuration {
 		Endpoints:             make(map[string]*Endpoint),
 		Requests:              make(map[string]*Request),
 		requestsConfiguration: make(map[string]map[interface{}]interface{}),
-		reader:            confReader,
+		reader:                confReader,
 	}
 	configuration.init()
 	return configuration
@@ -36,7 +42,7 @@ func NewConfiguration(confReader *ConfigurationReader) *Configuration {
 
 func (conf *Configuration) init() {
 	conf.reader.Read()
-	for name, content := range conf.reader.Configurations {
+	for name, content := range conf.reader.Configuration() {
 		conf.readConfiguration(name, content)
 	}
 	conf.loadEndpointGlobals()
@@ -246,7 +252,7 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 		files, _ := yaml.Get(name).Array()
 		for i := range files {
 			fileName := files[i].(string)
-			source, err := ioutil.ReadFile(conf.reader.directory + "/" + fileName)
+			source, err := ioutil.ReadFile(conf.reader.Directory() + "/" + fileName)
 			if err != nil {
 				panic(err)
 			}
