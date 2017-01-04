@@ -4,7 +4,7 @@ import "testing"
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
 	conf := NewSilentConfiguration()
-	conf.Init(true, "_resources/", "")
+	conf.Init(true, "_resources/valid", "")
 
 	if len(conf.GlobalHeaders) != 3 {
 		t.Error("Should be 3 global headers")
@@ -25,7 +25,7 @@ func TestLoadAllConfigurationGlobal(t *testing.T) {
 
 func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	conf := NewSilentConfiguration()
-	conf.Init(true, "_resources/", "")
+	conf.Init(true, "_resources/valid", "")
 
 	if len(conf.Endpoints) != 5 {
 		t.Error("Should be 5 endpoints")
@@ -89,7 +89,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 
 func TestLoadAllConfigurationRequests(t *testing.T) {
 	conf := NewSilentConfiguration()
-	conf.Init(true, "_resources/", "")
+	conf.Init(true, "_resources/valid", "")
 
 	if len(conf.Requests) != 6 {
 		t.Error("Should be 6 endpoints")
