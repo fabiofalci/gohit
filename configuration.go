@@ -4,12 +4,8 @@ import (
 	"fmt"
 	"github.com/smallfish/simpleyaml"
 	"io/ioutil"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
-	"io"
-	"bytes"
 )
 
 type Configuration struct {
@@ -19,22 +15,12 @@ type Configuration struct {
 	GlobalVariables map[string]interface{}
 	Endpoints       map[string]*Endpoint
 	Requests        map[string]*Request
-	directory       string
-	writer          *io.Writer
 
 	requestsConfiguration map[string]map[interface{}]interface{}
+	reader                *ConfigurationReader
 }
 
-func NewDefaultConfiguration() *Configuration {
-	return NewConfiguration(os.Stdout)
-}
-
-func NewSilentConfiguration() *Configuration {
-	var out bytes.Buffer
-	return NewConfiguration(&out)
-}
-
-func NewConfiguration(writer io.Writer) *Configuration {
+func NewConfiguration(confReader *ConfigurationReader) *Configuration {
 	configuration := &Configuration{
 		GlobalHeaders:         make(map[string]bool),
 		GlobalOptions:         make(map[string]bool),
@@ -42,17 +28,16 @@ func NewConfiguration(writer io.Writer) *Configuration {
 		Endpoints:             make(map[string]*Endpoint),
 		Requests:              make(map[string]*Request),
 		requestsConfiguration: make(map[string]map[interface{}]interface{}),
-		writer:                &writer,
+		reader:            confReader,
 	}
+	configuration.init()
 	return configuration
 }
 
-func (conf *Configuration) Init(loadAllFiles bool, directory string, file string) {
-	conf.directory = directory
-	if loadAllFiles {
-		conf.loadAll()
-	} else {
-		conf.loadConfigurationAndEndpoints(file)
+func (conf *Configuration) init() {
+	conf.reader.Read()
+	for name, content := range conf.reader.Configurations {
+		conf.readConfiguration(name, content)
 	}
 	conf.loadEndpointGlobals()
 	conf.loadRequests()
@@ -70,39 +55,10 @@ func (conf *Configuration) loadEndpointGlobals() {
 	}
 }
 
-func (conf *Configuration) loadConfigurationAndEndpoints(file string) {
-	if !strings.HasSuffix(file, ".yaml") {
-		file = file + ".yaml"
-	}
-	source, err := ioutil.ReadFile(conf.directory + "/" + file)
-	if err != nil {
-		panic(err)
-	}
-	conf.readConfiguration(file, source)
-}
-
 func (conf *Configuration) loadRequests() {
 	for k := range conf.requestsConfiguration {
 		conf.readRequests(conf.requestsConfiguration[k])
 	}
-}
-
-func (conf *Configuration) visit(path string, f os.FileInfo, err error) error {
-	if !f.IsDir() {
-		if strings.HasSuffix(path, ".yaml") {
-			fmt.Fprintf(*conf.writer, "Loading: %s\n", path)
-			source, err := ioutil.ReadFile(path)
-			if err != nil {
-				panic(err)
-			}
-			conf.readConfiguration(path, source)
-		}
-	}
-	return nil
-}
-
-func (conf *Configuration) loadAll() {
-	filepath.Walk(conf.directory, conf.visit)
 }
 
 func (conf *Configuration) readConfiguration(moduleDefinition string, source []byte) {
@@ -290,7 +246,7 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 		files, _ := yaml.Get(name).Array()
 		for i := range files {
 			fileName := files[i].(string)
-			source, err := ioutil.ReadFile(conf.directory + "/" + fileName)
+			source, err := ioutil.ReadFile(conf.reader.directory + "/" + fileName)
 			if err != nil {
 				panic(err)
 			}

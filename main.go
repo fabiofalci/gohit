@@ -33,11 +33,8 @@ type Executable interface {
 }
 
 func main() {
-	conf := NewDefaultConfiguration();
-	executor := &Executor{conf: conf}
 	app := cli.NewApp()
 	app.Version = "0.1.0"
-	printer := &Printer{conf: conf, writer: os.Stdout}
 
 	var loadAllFiles bool
 	var file string
@@ -67,7 +64,8 @@ func main() {
 			Name:      "requests",
 			ShortName: "r",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, directory, file)
+				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				printer := &Printer{conf: conf, writer: os.Stdout}
 				printer.ShowRequests()
 				return nil
 			},
@@ -76,7 +74,8 @@ func main() {
 			Name:      "endpoints",
 			ShortName: "e",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, directory, file)
+				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				printer := &Printer{conf: conf, writer: os.Stdout}
 				printer.ShowEndpoints()
 				return nil
 			},
@@ -84,7 +83,8 @@ func main() {
 		{
 			Name: "show",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, directory, file)
+				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				printer := &Printer{conf: conf, writer: os.Stdout}
 				printer.ShowRequestOrEndpoint(c.Args().First())
 				return nil
 			},
@@ -92,7 +92,8 @@ func main() {
 		{
 			Name: "run",
 			Action: func(c *cli.Context) error {
-				conf.Init(loadAllFiles, directory, file)
+				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				executor := &Executor{conf: conf}
 				executor.RunRequest(c.Args().First())
 				return nil
 			},
