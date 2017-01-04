@@ -1,0 +1,5 @@
+package: github.com/fabiofalci/gohit
+import:
+- package: github.com/smallfish/simpleyaml
+- package: github.com/urfave/cli
+  version: ^1.19.1
