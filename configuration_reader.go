@@ -37,12 +37,14 @@ func NewConfigurationReader(writer io.Writer, loadAllFiles bool, directory strin
 	return confReader
 }
 
-func (confReader *ConfigurationReader) Read() {
+func (confReader *ConfigurationReader) Read() error {
 	if confReader.loadAllFiles {
 		confReader.loadAll()
 	} else {
-		confReader.loadConfigurationAndEndpoints()
+		return confReader.loadConfigurationAndEndpoints()
 	}
+
+	return nil
 }
 
 func (confReader *ConfigurationReader) Configuration() map[string][]byte {
@@ -53,15 +55,16 @@ func (confReader *ConfigurationReader) Directory() string {
 	return confReader.directory
 }
 
-func (confReader *ConfigurationReader) loadConfigurationAndEndpoints() {
+func (confReader *ConfigurationReader) loadConfigurationAndEndpoints() error {
 	if !strings.HasSuffix(confReader.file, ".yaml") {
 		confReader.file = confReader.file + ".yaml"
 	}
 	source, err := ioutil.ReadFile(confReader.directory + "/" + confReader.file)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	confReader.configurations[confReader.file] = source
+	return nil
 }
 
 func (confReader *ConfigurationReader) visit(path string, f os.FileInfo, err error) error {

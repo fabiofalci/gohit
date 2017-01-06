@@ -22,7 +22,7 @@ type Configuration struct {
 }
 
 type ConfReader interface {
-	Read()
+	Read() error
 	Directory() string
 	Configuration() map[string][]byte
 }
@@ -45,7 +45,9 @@ func NewConfiguration(confReader ConfReader) (*Configuration, error) {
 }
 
 func (conf *Configuration) init() error {
-	conf.reader.Read()
+	if err := conf.reader.Read(); err != nil {
+		return err
+	}
 	for name, content := range conf.reader.Configuration() {
 		conf.readConfiguration(name, content)
 	}

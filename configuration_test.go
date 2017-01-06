@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"errors"
+)
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
 	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
@@ -180,7 +183,16 @@ endpoints:
 	}
 }
 
-func (reader *MockReader) Read() {
+func TestFileNotFound(t *testing.T) {
+	reader := &MockReader{configurations: make(map[string][]byte), errorWhenReading: errors.New("Test error")}
+
+	if _, err := NewConfiguration(reader); err == nil {
+		t.Error("Should have thrown a file not found error")
+	}
+}
+
+func (reader *MockReader) Read() error {
+	return reader.errorWhenReading
 }
 
 func (reader *MockReader) Configuration() map[string][]byte {
@@ -192,5 +204,6 @@ func (reader *MockReader) Directory() string {
 }
 
 type MockReader struct {
-	configurations  map[string][]byte
+	configurations   map[string][]byte
+	errorWhenReading error
 }
