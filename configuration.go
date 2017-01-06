@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"errors"
 )
 
 type Configuration struct {
@@ -26,7 +27,7 @@ type ConfReader interface {
 	Configuration() map[string][]byte
 }
 
-func NewConfiguration(confReader ConfReader) *Configuration {
+func NewConfiguration(confReader ConfReader) (*Configuration, error) {
 	configuration := &Configuration{
 		GlobalHeaders:         make(map[string]bool),
 		GlobalOptions:         make(map[string]bool),
@@ -36,17 +37,27 @@ func NewConfiguration(confReader ConfReader) *Configuration {
 		requestsConfiguration: make(map[string]map[interface{}]interface{}),
 		reader:                confReader,
 	}
-	configuration.init()
-	return configuration
+	if err := configuration.init(); err != nil {
+		return nil, err
+	}
+
+	return configuration, nil
 }
 
-func (conf *Configuration) init() {
+func (conf *Configuration) init() error {
 	conf.reader.Read()
 	for name, content := range conf.reader.Configuration() {
 		conf.readConfiguration(name, content)
 	}
+	for _, endpoint := range conf.Endpoints {
+		if endpoint.Url == "" {
+			return errors.New(fmt.Sprintf("Url not found for endpoint %v. Have you defined an URL?", endpoint.GetName()))
+		}
+	}
 	conf.loadEndpointGlobals()
 	conf.loadRequests()
+
+	return nil
 }
 
 func (conf *Configuration) loadEndpointGlobals() {

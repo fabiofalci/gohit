@@ -64,7 +64,10 @@ func main() {
 			Name:      "requests",
 			ShortName: "r",
 			Action: func(c *cli.Context) error {
-				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				if err != nil {
+					return err
+				}
 				printer := &Printer{conf: conf, writer: os.Stdout}
 				printer.ShowRequests()
 				return nil
@@ -74,7 +77,10 @@ func main() {
 			Name:      "endpoints",
 			ShortName: "e",
 			Action: func(c *cli.Context) error {
-				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				if err != nil {
+					return err
+				}
 				printer := &Printer{conf: conf, writer: os.Stdout}
 				printer.ShowEndpoints()
 				return nil
@@ -83,7 +89,10 @@ func main() {
 		{
 			Name: "show",
 			Action: func(c *cli.Context) error {
-				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				if err != nil {
+					return err
+				}
 				printer := &Printer{conf: conf, writer: os.Stdout}
 				printer.ShowRequestOrEndpoint(c.Args().First())
 				return nil
@@ -92,7 +101,10 @@ func main() {
 		{
 			Name: "run",
 			Action: func(c *cli.Context) error {
-				conf := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				if err != nil {
+					return err
+				}
 				executor := &Executor{conf: conf}
 				executor.RunRequest(c.Args().First())
 				return nil

@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	if len(conf.GlobalHeaders) != 3 {
 		t.Error("Should be 3 global headers")
@@ -23,7 +23,7 @@ func TestLoadAllConfigurationGlobal(t *testing.T) {
 }
 
 func TestLoadAllConfigurationEndpoints(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	if len(conf.Endpoints) != 5 {
 		t.Error("Should be 5 endpoints")
@@ -86,7 +86,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 }
 
 func TestLoadAllConfigurationRequests(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	if len(conf.Requests) != 6 {
 		t.Error("Should be 6 endpoints")
@@ -166,6 +166,31 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 }
 
 func TestLoadMissingUrl(t *testing.T) {
-	reader := &ConfigurationReader{}
-	NewConfiguration(reader)
+	reader := &MockReader{configurations: make(map[string][]byte)}
+	reader.configurations["test"] = []byte(
+`
+endpoints:
+  test:
+    path: /test
+`)
+
+
+	if _, err := NewConfiguration(reader); err == nil {
+		t.Error("Should have thrown a missing URL error")
+	}
+}
+
+func (reader *MockReader) Read() {
+}
+
+func (reader *MockReader) Configuration() map[string][]byte {
+	return reader.configurations
+}
+
+func (reader *MockReader) Directory() string {
+	return "test"
+}
+
+type MockReader struct {
+	configurations  map[string][]byte
 }

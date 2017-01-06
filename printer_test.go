@@ -7,7 +7,7 @@ import (
 )
 
 func TestShowEndpoints(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	var b bytes.Buffer
 	printer := &Printer{conf: conf, writer: &b}
@@ -20,7 +20,7 @@ func TestShowEndpoints(t *testing.T) {
 }
 
 func TestShowRequests(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	var b bytes.Buffer
 	printer := &Printer{conf: conf, writer: &b}
@@ -33,7 +33,7 @@ func TestShowRequests(t *testing.T) {
 }
 
 func TestShowEndpoint(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	var b bytes.Buffer
 	printer := &Printer{conf: conf, writer: &b}
@@ -46,7 +46,7 @@ func TestShowEndpoint(t *testing.T) {
 }
 
 func TestShowRequest(t *testing.T) {
-	conf := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
 
 	var b bytes.Buffer
 	printer := &Printer{conf: conf, writer: &b}
