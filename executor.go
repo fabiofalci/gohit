@@ -15,20 +15,24 @@ type Executor struct {
 	conf *Configuration
 }
 
-func (executor *Executor) RunRequest(requestName string) {
+func (executor *Executor) RunRequest(requestName string) error {
 	request := executor.conf.Requests[requestName]
 	if request != nil {
 		executor.runExecutable(request)
-		return
+		return nil
 	}
 
 	endpoint := executor.conf.Endpoints[requestName]
 	if endpoint != nil {
 		m := make(map[interface{}]interface{})
 		m["endpoint"] = requestName
-		request := executor.conf.createRequest(requestName, m)
+		request, err := executor.conf.createRequest(requestName, m)
+		if err != nil {
+			return err
+		}
 		executor.runExecutable(request)
 	}
+	return nil
 }
 
 func (executor *Executor) runExecutable(executable Executable) {

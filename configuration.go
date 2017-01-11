@@ -49,7 +49,9 @@ func (conf *Configuration) init() error {
 		return err
 	}
 	for name, content := range conf.reader.Configuration() {
-		conf.readConfiguration(name, content)
+		if err := conf.readConfiguration(name, content); err != nil {
+			return err
+		}
 	}
 	for _, endpoint := range conf.Endpoints {
 		if endpoint.Url == "" {
@@ -57,7 +59,24 @@ func (conf *Configuration) init() error {
 		}
 	}
 	conf.loadEndpointGlobals()
-	conf.loadRequests()
+	if err := conf.loadRequests(); err != nil {
+		return err
+	}
+
+	if err := conf.validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (conf *Configuration) validate() error {
+
+	for _, endpoint := range conf.Endpoints {
+		if endpoint.Path == "" {
+			return errors.New(fmt.Sprintf("Endpoint %v missing path", endpoint.Name))
+		}
+	}
 
 	return nil
 }
@@ -74,59 +93,71 @@ func (conf *Configuration) loadEndpointGlobals() {
 	}
 }
 
-func (conf *Configuration) loadRequests() {
+func (conf *Configuration) loadRequests() error {
 	for k := range conf.requestsConfiguration {
-		conf.readRequests(conf.requestsConfiguration[k])
+		if err := conf.readRequests(conf.requestsConfiguration[k]); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (conf *Configuration) readConfiguration(moduleDefinition string, source []byte) {
+func (conf *Configuration) readConfiguration(moduleDefinition string, source []byte) error {
 	yaml, err := simpleyaml.NewYaml(source)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	asMap, err := yaml.Map()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for key := range asMap {
 		if conf.isConfiguration(key.(string)) {
-			conf.addConfiguration(key.(string), yaml)
+			if err := conf.addConfiguration(key.(string), yaml); err != nil {
+				return err
+			}
 		} else if key != "endpoints" && key != "requests" {
-			panic(fmt.Sprintf("Invalid yaml attribute '%v'", key))
+			return errors.New(fmt.Sprintf("Invalid yaml attribute '%v'", key))
 		}
 	}
 
 	endpointsMap := asMap["endpoints"]
 	if endpointsMap != nil {
-		conf.readEndpoints(endpointsMap.(map[interface{}]interface{}), yaml)
+		if err := conf.readEndpoints(endpointsMap.(map[interface{}]interface{}), yaml); err != nil {
+			return err
+		}
 	}
 	requestsMap := asMap["requests"]
 	if requestsMap != nil {
 		conf.requestsConfiguration[moduleDefinition] = requestsMap.(map[interface{}]interface{})
 	}
+
+	return nil
 }
 
-func (conf *Configuration) readRequests(requestsMap map[interface{}]interface{}) {
+func (conf *Configuration) readRequests(requestsMap map[interface{}]interface{}) error {
+	var err error
 	for key := range requestsMap {
 		keyAsString := key.(string)
-		conf.addRequest(keyAsString, requestsMap[key])
+		if conf.Requests[keyAsString], err = conf.createRequest(keyAsString, requestsMap[key]); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (conf *Configuration) readEndpoints(endpointMap map[interface{}]interface{}, yaml *simpleyaml.Yaml) {
+func (conf *Configuration) readEndpoints(endpointMap map[interface{}]interface{}, yaml *simpleyaml.Yaml) error {
 	for key := range endpointMap {
 		keyAsString := key.(string)
-		conf.addEndpoint(keyAsString, yaml)
+		if err := conf.addEndpoint(keyAsString, yaml); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (conf *Configuration) addRequest(name string, value interface{}) {
-	conf.Requests[name] = conf.createRequest(name, value)
-}
-
-func (conf *Configuration) createRequest(name string, value interface{}) *Request {
+func (conf *Configuration) createRequest(name string, value interface{}) (*Request, error) {
 	request := &Request{
 		Name:    name,
 		Headers: make(map[string]bool),
@@ -138,7 +169,7 @@ func (conf *Configuration) createRequest(name string, value interface{}) *Reques
 	endpointName := request.Parameters["endpoint"].(string)
 	endpoint := conf.Endpoints[endpointName]
 	if endpoint == nil {
-		panic(fmt.Sprintf("Cannot find endpoint %v", endpointName))
+		return nil, errors.New(fmt.Sprintf("Cannot find endpoint %v", endpointName))
 	}
 	request.Method = endpoint.Method
 	request.Url = endpoint.Url
@@ -162,7 +193,7 @@ func (conf *Configuration) createRequest(name string, value interface{}) *Reques
 		toReplace := "{" + k + "}"
 		conf.replaceAll(request, toReplace, conf.GlobalVariables[k])
 	}
-	return request
+	return request, nil
 }
 
 func (conf *Configuration) replaceAll(request *Request, toReplace string, value interface{}) {
@@ -200,7 +231,7 @@ func (conf *Configuration) getReplacement(value interface{}) string {
 	}
 }
 
-func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
+func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error {
 	endpoint := &Endpoint{
 		Name:    name,
 		Headers: make(map[string]bool),
@@ -208,11 +239,9 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
 	}
 	conf.Endpoints[name] = endpoint
 
-	path, err := yaml.GetPath("endpoints", name, "path").String()
-	if err != nil {
-		panic(err)
+	if path, err := yaml.GetPath("endpoints", name, "path").String(); err == nil {
+		endpoint.Path = path
 	}
-	endpoint.Path = path
 
 	query, err := yaml.GetPath("endpoints", name, "query").String()
 	if err == nil {
@@ -246,9 +275,11 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) {
 			endpoint.Options[options[i].(string)] = true
 		}
 	}
+
+	return nil
 }
 
-func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) {
+func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) error {
 	if name == "headers" {
 		headers, _ := yaml.Get(name).Array()
 		for i := range headers {
@@ -269,7 +300,9 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 			if err != nil {
 				panic(err)
 			}
-			conf.readConfiguration(fileName, source)
+			if err := conf.readConfiguration(fileName, source); err != nil {
+				return err
+			}
 		}
 	} else if name == "variables" {
 		variables, _ := yaml.Get(name).Map()
@@ -277,6 +310,8 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 			conf.GlobalVariables[i.(string)] = variables[i]
 		}
 	}
+
+	return nil
 }
 
 func (conf *Configuration) isConfiguration(name string) bool {

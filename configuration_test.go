@@ -6,7 +6,11 @@ import (
 )
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
-	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, err := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+
+	if err != nil {
+		t.Errorf("Should not throw an error '%v'", err)
+	}
 
 	if len(conf.GlobalHeaders) != 3 {
 		t.Error("Should be 3 global headers")
@@ -180,6 +184,23 @@ endpoints:
 
 	if _, err := NewConfiguration(reader); err == nil {
 		t.Error("Should have thrown a missing URL error")
+	}
+}
+
+func TestMissingPath(t *testing.T) {
+	reader := &MockReader{configurations: make(map[string][]byte)}
+	reader.configurations["test"] = []byte(
+`
+url: local
+
+endpoints:
+  test:
+    method: GET
+`)
+
+
+	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Endpoint test missing path" {
+		t.Errorf("Should have thrown a missing path error but got '%v;", err.Error())
 	}
 }
 
