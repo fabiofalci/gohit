@@ -27,6 +27,22 @@ type ConfReader interface {
 	Configuration() map[string][]byte
 }
 
+const (
+	URL = "url"
+	OPTIONS = "options"
+	HEADERS = "headers"
+	FILES = "files"
+	VARIABLES = "variables"
+
+	ENDPOINTS = "endpoints"
+	PATH = "path"
+	METHOD = "method"
+	QUERY = "query"
+
+	REQUESTS = "requests"
+	ENDPOINT = "endpoint"
+)
+
 func NewConfiguration(confReader ConfReader) (*Configuration, error) {
 	configuration := &Configuration{
 		GlobalHeaders:         make(map[string]bool),
@@ -122,18 +138,18 @@ func (conf *Configuration) readConfiguration(moduleDefinition string, source []b
 			if err := conf.addConfiguration(key.(string), yaml); err != nil {
 				return err
 			}
-		} else if key != "endpoints" && key != "requests" {
+		} else if key != ENDPOINTS && key != REQUESTS {
 			return errors.New(fmt.Sprintf("Invalid yaml attribute '%v'", key))
 		}
 	}
 
-	endpointsMap := asMap["endpoints"]
+	endpointsMap := asMap[ENDPOINTS]
 	if endpointsMap != nil {
 		if err := conf.readEndpoints(endpointsMap.(map[interface{}]interface{}), yaml); err != nil {
 			return err
 		}
 	}
-	requestsMap := asMap["requests"]
+	requestsMap := asMap[REQUESTS]
 	if requestsMap != nil {
 		conf.requestsConfiguration[moduleDefinition] = requestsMap.(map[interface{}]interface{})
 	}
@@ -172,7 +188,7 @@ func (conf *Configuration) createRequest(name string, value interface{}) (*Reque
 
 	request.Parameters = value.(map[interface{}]interface{})
 
-	endpointName := request.Parameters["endpoint"].(string)
+	endpointName := request.Parameters[ENDPOINT].(string)
 	endpoint := conf.Endpoints[endpointName]
 	if endpoint == nil {
 		return nil, errors.New(fmt.Sprintf("Request %v couldn't find endpoint %v", name, endpointName))
@@ -245,33 +261,33 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 	}
 	conf.Endpoints[name] = endpoint
 
-	if path, err := yaml.GetPath("endpoints", name, "path").String(); err == nil {
+	if path, err := yaml.GetPath(ENDPOINTS, name, PATH).String(); err == nil {
 		endpoint.Path = path
 	}
 
-	if query, err := yaml.GetPath("endpoints", name, "query").String(); err == nil {
+	if query, err := yaml.GetPath(ENDPOINTS, name, QUERY).String(); err == nil {
 		endpoint.Query = query
 	}
 
-	if url, err := yaml.GetPath("endpoints", name, "url").String(); err == nil {
+	if url, err := yaml.GetPath(ENDPOINTS, name, URL).String(); err == nil {
 		endpoint.Url = url
 	} else {
 		endpoint.Url = conf.GlobalUrl
 	}
 
-	if method, err := yaml.GetPath("endpoints", name, "method").String(); err == nil {
+	if method, err := yaml.GetPath(ENDPOINTS, name, METHOD).String(); err == nil {
 		endpoint.Method = method
 	} else {
 		endpoint.Method = "GET"
 	}
 
-	if headers, err := yaml.GetPath("endpoints", name, "headers").Array(); err == nil {
+	if headers, err := yaml.GetPath(ENDPOINTS, name, HEADERS).Array(); err == nil {
 		for i := range headers {
 			endpoint.Headers[headers[i].(string)] = true
 		}
 	}
 
-	if options, err := yaml.GetPath("endpoints", name, "options").Array(); err == nil {
+	if options, err := yaml.GetPath(ENDPOINTS, name, OPTIONS).Array(); err == nil {
 		for i := range options {
 			endpoint.Options[options[i].(string)] = true
 		}
@@ -281,19 +297,19 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 }
 
 func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) error {
-	if name == "headers" {
+	if name == HEADERS {
 		headers, _ := yaml.Get(name).Array()
 		for i := range headers {
 			conf.GlobalHeaders[headers[i].(string)] = true
 		}
-	} else if name == "url" {
+	} else if name == URL {
 		conf.GlobalUrl, _ = yaml.Get(name).String()
-	} else if name == "options" {
+	} else if name == OPTIONS {
 		options, _ := yaml.Get(name).Array()
 		for i := range options {
 			conf.GlobalOptions[options[i].(string)] = true
 		}
-	} else if name == "files" {
+	} else if name == FILES {
 		files, _ := yaml.Get(name).Array()
 		for i := range files {
 			fileName := files[i].(string)
@@ -305,7 +321,7 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 				return err
 			}
 		}
-	} else if name == "variables" {
+	} else if name == VARIABLES {
 		variables, _ := yaml.Get(name).Map()
 		for i := range variables {
 			conf.GlobalVariables[i.(string)] = variables[i]
@@ -316,5 +332,5 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 }
 
 func (conf *Configuration) isConfiguration(name string) bool {
-	return name == "headers" || name == "url" || name == "options" || name == "files" || name == "variables"
+	return name == HEADERS || name == URL || name == OPTIONS || name == FILES || name == VARIABLES
 }
