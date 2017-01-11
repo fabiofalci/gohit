@@ -249,34 +249,29 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 		endpoint.Path = path
 	}
 
-	query, err := yaml.GetPath("endpoints", name, "query").String()
-	if err == nil {
+	if query, err := yaml.GetPath("endpoints", name, "query").String(); err == nil {
 		endpoint.Query = query
 	}
 
-	url, err := yaml.GetPath("endpoints", name, "url").String()
-	if err == nil {
+	if url, err := yaml.GetPath("endpoints", name, "url").String(); err == nil {
 		endpoint.Url = url
 	} else {
 		endpoint.Url = conf.GlobalUrl
 	}
 
-	method, err := yaml.GetPath("endpoints", name, "method").String()
-	if err == nil {
+	if method, err := yaml.GetPath("endpoints", name, "method").String(); err == nil {
 		endpoint.Method = method
 	} else {
 		endpoint.Method = "GET"
 	}
 
-	headers, err := yaml.GetPath("endpoints", name, "headers").Array()
-	if err == nil {
+	if headers, err := yaml.GetPath("endpoints", name, "headers").Array(); err == nil {
 		for i := range headers {
 			endpoint.Headers[headers[i].(string)] = true
 		}
 	}
 
-	options, err := yaml.GetPath("endpoints", name, "options").Array()
-	if err == nil {
+	if options, err := yaml.GetPath("endpoints", name, "options").Array(); err == nil {
 		for i := range options {
 			endpoint.Options[options[i].(string)] = true
 		}
