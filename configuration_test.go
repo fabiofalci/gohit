@@ -238,6 +238,25 @@ requests:
 	}
 }
 
+func TestInvalidAttribute(t *testing.T) {
+	reader := &MockReader{configurations: make(map[string][]byte)}
+	reader.configurations["test"] = []byte(
+`
+url: local
+
+invalid: true
+
+endpoints:
+  test:
+    path: /test
+
+`)
+
+	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Invalid yaml attribute 'invalid'" {
+		t.Error("Should have thrown a missing endpoint error")
+	}
+}
+
 func TestFileNotFound(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte), errorWhenReading: errors.New("Test error")}
 
