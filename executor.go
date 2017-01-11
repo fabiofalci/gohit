@@ -9,6 +9,7 @@ import (
 	"strings"
 	"os/exec"
 	"text/template"
+	"errors"
 )
 
 type Executor struct {
@@ -24,15 +25,20 @@ func (executor *Executor) RunRequest(requestName string) error {
 
 	endpoint := executor.conf.Endpoints[requestName]
 	if endpoint != nil {
-		m := make(map[interface{}]interface{})
-		m["endpoint"] = requestName
-		request, err := executor.conf.createRequest(requestName, m)
-		if err != nil {
+		if r, err := executor.createTemporaryRequest(requestName); err == nil {
+			executor.runExecutable(r)
+			return nil
+		} else {
 			return err
 		}
-		executor.runExecutable(request)
 	}
-	return nil
+	return errors.New(fmt.Sprint("Could not find request/endpoint {}", requestName))
+}
+
+func (executor *Executor) createTemporaryRequest(requestName string) (*Request, error) {
+	m := make(map[interface{}]interface{}, 1)
+	m["endpoint"] = requestName
+	return executor.conf.createRequest(requestName, m)
 }
 
 func (executor *Executor) runExecutable(executable Executable) {

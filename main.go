@@ -106,8 +106,7 @@ func main() {
 					return err
 				}
 				executor := &Executor{conf: conf}
-				executor.RunRequest(c.Args().First())
-				return nil
+				return executor.RunRequest(c.Args().First())
 			},
 		},
 	}
