@@ -172,6 +172,19 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	}
 }
 
+func TestLoadMissingEndpoint(t *testing.T) {
+	reader := &MockReader{configurations: make(map[string][]byte)}
+	reader.configurations["test"] = []byte(
+`
+url: local
+`)
+
+
+	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Missing endpoints" {
+		t.Error("Should have thrown a missing endpoints error")
+	}
+}
+
 func TestLoadMissingUrl(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
@@ -182,7 +195,7 @@ endpoints:
 `)
 
 
-	if _, err := NewConfiguration(reader); err == nil {
+	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Missing URL" {
 		t.Error("Should have thrown a missing URL error")
 	}
 }
@@ -200,7 +213,7 @@ endpoints:
 
 
 	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Endpoint test missing path" {
-		t.Errorf("Should have thrown a missing path error but got '%v;", err.Error())
+		t.Error("Should have thrown a missing path error")
 	}
 }
 

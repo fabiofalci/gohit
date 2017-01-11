@@ -53,11 +53,6 @@ func (conf *Configuration) init() error {
 			return err
 		}
 	}
-	for _, endpoint := range conf.Endpoints {
-		if endpoint.Url == "" {
-			return errors.New(fmt.Sprintf("Url not found for endpoint %v. Have you defined an URL?", endpoint.GetName()))
-		}
-	}
 	conf.loadEndpointGlobals()
 	if err := conf.loadRequests(); err != nil {
 		return err
@@ -71,6 +66,16 @@ func (conf *Configuration) init() error {
 }
 
 func (conf *Configuration) validate() error {
+	if len(conf.Endpoints) == 0 {
+		return errors.New("Missing endpoints")
+	}
+	for _, endpoint := range conf.Endpoints {
+		if endpoint.Url == "" {
+			return errors.New("Missing URL")
+		}
+		// need to validate just the first one
+		break
+	}
 
 	for _, endpoint := range conf.Endpoints {
 		if endpoint.Path == "" {
