@@ -145,7 +145,8 @@ func (conf *Configuration) readRequests(requestsMap map[interface{}]interface{})
 	var err error
 	for key := range requestsMap {
 		keyAsString := key.(string)
-		if conf.Requests[keyAsString], err = conf.createRequest(keyAsString, requestsMap[key]); err != nil {
+		conf.Requests[keyAsString], err = conf.createRequest(keyAsString, requestsMap[key])
+		if err != nil {
 			return err
 		}
 	}
@@ -174,7 +175,7 @@ func (conf *Configuration) createRequest(name string, value interface{}) (*Reque
 	endpointName := request.Parameters["endpoint"].(string)
 	endpoint := conf.Endpoints[endpointName]
 	if endpoint == nil {
-		return nil, errors.New(fmt.Sprintf("Cannot find endpoint %v", endpointName))
+		return nil, errors.New(fmt.Sprintf("Request %v couldn't find endpoint %v", name, endpointName))
 	}
 	request.Method = endpoint.Method
 	request.Url = endpoint.Url
