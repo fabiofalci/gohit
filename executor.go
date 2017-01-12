@@ -13,26 +13,45 @@ import (
 )
 
 type Executor struct {
-	conf *Configuration
+	conf   *Configuration
+	runner CommandRunner
+}
+
+type CommandRunner interface {
+	Run(command []string) error
+}
+
+type DefaultRunner struct {
+}
+
+func NewDefaultExecutor(conf *Configuration) *Executor {
+	runner := &DefaultRunner{}
+	return NewExecutor(conf, runner)
+}
+
+func NewExecutor(conf *Configuration, runner CommandRunner) *Executor {
+	executor := &Executor{
+		conf: conf,
+		runner: runner,
+	}
+	return executor
 }
 
 func (executor *Executor) RunRequest(requestName string) error {
 	request := executor.conf.Requests[requestName]
 	if request != nil {
-		executor.runExecutable(request)
-		return nil
+		return executor.runExecutable(request)
 	}
 
 	endpoint := executor.conf.Endpoints[requestName]
 	if endpoint != nil {
 		if r, err := executor.createTemporaryRequest(requestName); err == nil {
-			executor.runExecutable(r)
-			return nil
+			return executor.runExecutable(r)
 		} else {
 			return err
 		}
 	}
-	return errors.New(fmt.Sprint("Could not find request/endpoint {}", requestName))
+	return errors.New(fmt.Sprint("Could not find request/endpoint ", requestName))
 }
 
 func (executor *Executor) createTemporaryRequest(requestName string) (*Request, error) {
@@ -41,7 +60,7 @@ func (executor *Executor) createTemporaryRequest(requestName string) (*Request, 
 	return executor.conf.createRequest(requestName, m)
 }
 
-func (executor *Executor) runExecutable(executable Executable) {
+func (executor *Executor) runExecutable(executable Executable) error {
 	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
 	buf := new(bytes.Buffer)
 	t.Execute(buf, executable)
@@ -59,21 +78,21 @@ func (executor *Executor) runExecutable(executable Executable) {
 		}
 	}
 
-	executor.executeCurlCommand(requestAsString)
+	asArray := strings.Split(requestAsString, "\n")
+	return executor.runner.Run(asArray)
 }
 
-func (executor *Executor) executeCurlCommand(command string) {
-	cmd := exec.Command("curl", strings.Split(command, "\n")...)
+func (runner *DefaultRunner) Run(command []string) error {
+	cmd := exec.Command("curl", command...)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		return
+	if err := cmd.Run(); err != nil {
+		return err
 	}
 	fmt.Println(out.String())
+	return nil
 }
 
 func (executor *Executor) hasResolvedAllVariables(request string) bool {

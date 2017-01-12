@@ -203,7 +203,7 @@ endpoints:
 func TestMissingPath(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-		`
+`
 url: local
 
 endpoints:
@@ -211,9 +211,8 @@ endpoints:
   method: GET
 `)
 
-
 	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Endpoint test missing path" {
-		t.Error("Should have thrown a missing path error")
+		t.Error("Should have thrown a missing path error but got ", err)
 	}
 }
 

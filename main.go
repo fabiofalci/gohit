@@ -105,7 +105,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				executor := &Executor{conf: conf}
+				executor := NewDefaultExecutor(conf)
 				return executor.RunRequest(c.Args().First())
 			},
 		},
