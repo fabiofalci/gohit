@@ -172,6 +172,26 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	}
 }
 
+func TestOverrideUrl(t *testing.T) {
+	conf, _ := NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests2.yaml"))
+
+	if len(conf.Requests) != 6 {
+		t.Error("Should be 6 endpoints")
+	}
+
+	request1 := conf.Requests["request1"]
+	if request1.Name != "request1" ||
+		request1.Path != "/path1" ||
+		request1.Url != "https://127.0.0.1" ||
+		request1.Query != "" ||
+		len(request1.Headers) != 3 ||
+		len(request1.Options) != 4 ||
+		len(request1.Parameters) != 1 ||
+		request1.Method != "GET" {
+		t.Errorf("Request1 configuration problem %v", request1)
+	}
+}
+
 func TestLoadMissingEndpoints(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(

@@ -133,13 +133,29 @@ func (conf *Configuration) readConfiguration(moduleDefinition string, source []b
 		return err
 	}
 
+	var files []interface{}
 	for key := range asMap {
 		if conf.isConfiguration(key.(string)) {
-			if err := conf.addConfiguration(key.(string), yaml); err != nil {
+			if imports, err := conf.addConfiguration(key.(string), yaml); err != nil {
 				return err
+			} else if imports != nil {
+				files = imports
 			}
 		} else if key != ENDPOINTS && key != REQUESTS {
 			return errors.New(fmt.Sprintf("Invalid yaml attribute '%v'", key))
+		}
+	}
+
+	if files != nil {
+		for i := range files {
+			fileName := files[i].(string)
+			source, err := ioutil.ReadFile(conf.reader.Directory() + "/" + fileName)
+			if err != nil {
+				panic(err)
+			}
+			if err := conf.readConfiguration(fileName, source); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -296,14 +312,16 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 	return nil
 }
 
-func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) error {
+func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) ([]interface{}, error) {
 	if name == HEADERS {
 		headers, _ := yaml.Get(name).Array()
 		for i := range headers {
 			conf.GlobalHeaders[headers[i].(string)] = true
 		}
 	} else if name == URL {
-		conf.GlobalUrl, _ = yaml.Get(name).String()
+		if conf.GlobalUrl == "" {
+			conf.GlobalUrl, _ = yaml.Get(name).String()
+		}
 	} else if name == OPTIONS {
 		options, _ := yaml.Get(name).Array()
 		for i := range options {
@@ -311,16 +329,7 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 		}
 	} else if name == FILES {
 		files, _ := yaml.Get(name).Array()
-		for i := range files {
-			fileName := files[i].(string)
-			source, err := ioutil.ReadFile(conf.reader.Directory() + "/" + fileName)
-			if err != nil {
-				panic(err)
-			}
-			if err := conf.readConfiguration(fileName, source); err != nil {
-				return err
-			}
-		}
+		return files, nil
 	} else if name == VARIABLES {
 		variables, _ := yaml.Get(name).Map()
 		for i := range variables {
@@ -328,7 +337,7 @@ func (conf *Configuration) addConfiguration(name string, yaml *simpleyaml.Yaml) 
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (conf *Configuration) isConfiguration(name string) bool {
