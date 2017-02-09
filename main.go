@@ -4,6 +4,9 @@ import (
 	"os"
 	"github.com/urfave/cli"
 	"fmt"
+	"strconv"
+	"time"
+	"runtime"
 )
 
 type Endpoint struct {
@@ -32,9 +35,21 @@ type Executable interface {
 	GetOptions() map[string]bool
 }
 
+var version string
+var commit string
+var buildDate string
+
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.1.0"
+	app.Version = version
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Println("Version: " + c.App.Version)
+		fmt.Println("Git commit: " + commit)
+		if i, err := strconv.ParseInt(buildDate, 10, 64); err == nil {
+			fmt.Println("Build date: " + time.Unix(i, 0).UTC().String())
+		}
+		fmt.Println("Go version: " + runtime.Version())
+	}
 
 	var file string
 	var directory string
