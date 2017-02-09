@@ -55,7 +55,6 @@ curl https://api.github.com/repos/fabiofalci/sconsify \
 
 ```
 $ gohit -f github.yaml run show_sconsify
-show_sconsify:
 {
   "id": 21726337,
   "name": "sconsify",
