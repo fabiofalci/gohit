@@ -12,24 +12,22 @@ import (
 
 type ConfigurationReader struct {
 	writer          *io.Writer
-	loadAllFiles    bool
 	directory       string
 	file            string
 	configurations  map[string][]byte
 }
 
-func NewDefaultConfigurationReader(loadAllFiles bool, directory string, file string) *ConfigurationReader {
-	return NewConfigurationReader(os.Stdout, loadAllFiles, directory, file)
+func NewDefaultConfigurationReader(directory string, file string) *ConfigurationReader {
+	return NewConfigurationReader(os.Stdout, directory, file)
 }
-func NewSilentConfigurationReader(loadAllFiles bool, directory string, file string) *ConfigurationReader {
+func NewSilentConfigurationReader(directory string, file string) *ConfigurationReader {
 	var out bytes.Buffer
-	return NewConfigurationReader(&out, loadAllFiles, directory, file)
+	return NewConfigurationReader(&out, directory, file)
 }
 
-func NewConfigurationReader(writer io.Writer, loadAllFiles bool, directory string, file string) *ConfigurationReader {
+func NewConfigurationReader(writer io.Writer, directory string, file string) *ConfigurationReader {
 	confReader := &ConfigurationReader{
 		writer: &writer,
-		loadAllFiles: loadAllFiles,
 		directory: directory,
 		file: file,
 		configurations: make(map[string][]byte),
@@ -38,13 +36,7 @@ func NewConfigurationReader(writer io.Writer, loadAllFiles bool, directory strin
 }
 
 func (confReader *ConfigurationReader) Read() error {
-	if confReader.loadAllFiles {
-		confReader.loadAll()
-	} else {
-		return confReader.loadConfigurationAndEndpoints()
-	}
-
-	return nil
+	return confReader.loadConfigurationAndEndpoints()
 }
 
 func (confReader *ConfigurationReader) Configuration() map[string][]byte {

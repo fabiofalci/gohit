@@ -36,7 +36,6 @@ func main() {
 	app := cli.NewApp()
 	app.Version = "0.1.0"
 
-	var loadAllFiles bool
 	var file string
 	var directory string
 
@@ -45,11 +44,6 @@ func main() {
 			Name:        "f",
 			Usage:       "Load one yaml file",
 			Destination: &file,
-		},
-		cli.BoolFlag{
-			Name:        "r",
-			Usage:       "Recursively load all yaml files",
-			Destination: &loadAllFiles,
 		},
 		cli.StringFlag{
 			Name:        "d",
@@ -64,7 +58,7 @@ func main() {
 			Name:      "requests",
 			ShortName: "r",
 			Action: func(c *cli.Context) error {
-				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(directory, file))
 				if err != nil {
 					return err
 				}
@@ -77,7 +71,7 @@ func main() {
 			Name:      "endpoints",
 			ShortName: "e",
 			Action: func(c *cli.Context) error {
-				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(directory, file))
 				if err != nil {
 					return err
 				}
@@ -89,7 +83,7 @@ func main() {
 		{
 			Name: "show",
 			Action: func(c *cli.Context) error {
-				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(directory, file))
 				if err != nil {
 					return err
 				}
@@ -101,7 +95,7 @@ func main() {
 		{
 			Name: "run",
 			Action: func(c *cli.Context) error {
-				conf, err := NewConfiguration(NewDefaultConfigurationReader(loadAllFiles, directory, file))
+				conf, err := NewConfiguration(NewDefaultConfigurationReader(directory, file))
 				if err != nil {
 					return err
 				}

@@ -7,7 +7,7 @@ import (
 )
 
 func TestRequestEndpointNotFound(t *testing.T) {
-	conf, _:= NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _:= NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests.yaml"))
 	executor := NewDefaultExecutor(conf)
 
 	if err := executor.RunRequest("not-found"); err == nil || err.Error() != "Could not find request/endpoint not-found" {

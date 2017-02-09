@@ -6,7 +6,7 @@ import (
 )
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
-	conf, err := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, err := NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests.yaml"))
 
 	if err != nil {
 		t.Errorf("Should not throw an error '%v'", err)
@@ -30,7 +30,7 @@ func TestLoadAllConfigurationGlobal(t *testing.T) {
 }
 
 func TestLoadAllConfigurationEndpoints(t *testing.T) {
-	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests.yaml"))
 
 	if len(conf.Endpoints) != 5 {
 		t.Error("Should be 5 endpoints")
@@ -93,7 +93,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 }
 
 func TestLoadAllConfigurationRequests(t *testing.T) {
-	conf, _ := NewConfiguration(NewSilentConfigurationReader(true, "_resources/valid", ""))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests.yaml"))
 
 	if len(conf.Requests) != 6 {
 		t.Error("Should be 6 endpoints")
