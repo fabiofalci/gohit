@@ -92,6 +92,10 @@ func (runner *DefaultRunner) Run(command []string) error {
 		return err
 	}
 	fmt.Println(out.String())
+	if stderr.Len() > 0 {
+		fmt.Println("#### Stderr ####")
+		fmt.Println(stderr.String())
+	}
 	return nil
 }
 
