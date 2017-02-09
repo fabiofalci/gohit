@@ -3,9 +3,7 @@ package main
 import (
 	"os"
 	"strings"
-	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"io"
 	"bytes"
 )
@@ -58,23 +56,3 @@ func (confReader *ConfigurationReader) loadConfigurationAndEndpoints() error {
 	confReader.configurations[confReader.file] = source
 	return nil
 }
-
-func (confReader *ConfigurationReader) visit(path string, f os.FileInfo, err error) error {
-	if !f.IsDir() {
-		if strings.HasSuffix(path, ".yaml") {
-			fmt.Fprintf(*confReader.writer, "Loading: %s\n", path)
-			source, err := ioutil.ReadFile(path)
-			if err != nil {
-				panic(err)
-			}
-			confReader.configurations[path] = source
-		}
-	}
-	return nil
-}
-
-func (confReader *ConfigurationReader) loadAll() {
-	filepath.Walk(confReader.directory, confReader.visit)
-}
-
-
