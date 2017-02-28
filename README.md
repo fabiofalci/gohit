@@ -1,6 +1,8 @@
 gohit
 -----
 
+[![Join the chat at https://gitter.im/gohit/Lobby](https://badges.gitter.im/gohit/Lobby.svg)](https://gitter.im/gohit/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Run curl commands from yaml files.
 
 Download current version [0.1.0](https://github.com/fabiofalci/gohit/releases)
