@@ -78,7 +78,7 @@ files:
   - 'api.yaml'
   - 'api-security-token.yaml'
 
-# list of headers
+# list of global headers
 headers:
   - 'Accept: application/vnd.github.v3+json'
 
@@ -109,6 +109,10 @@ endpoints:
 
     # query string
     query: name={name}&date={date}
+
+    # list of headers
+    headers:
+      - 'Content-type: application/xml'
 
     # any other curl option
     options:
