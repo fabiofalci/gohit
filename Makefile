@@ -1,4 +1,4 @@
-VERSION := 0.1.0-local
+VERSION := 0.1.0
 COMMIT := $(shell git rev-parse --short HEAD)
 BUILD_DATE := $(shell date +"%s")
 
