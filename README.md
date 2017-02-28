@@ -63,5 +63,108 @@ $ gohit -f github.yaml run show_sconsify
   ....
   "subscribers_count": 24
 }
+```
 
+### yaml file spec
+
+```yaml
+
+# list of files to be imported
+files:
+  - 'api.yaml'
+  - 'api-security-token.yaml'
+
+# list of headers
+headers:
+  - 'Accept: application/vnd.github.v3+json'
+
+# curl url
+url: https://api.github.com
+
+# list of any other curl option
+options:
+  - '--compress'
+
+# global variables
+variables:
+  name: value1
+  date: value2
+
+
+# endpoint definitions
+endpoints:
+
+  # endpoint name
+  get_repo:
+
+    # endpoint path
+    path: /repos/{owner}/{repo}
+
+    # http method
+    method: GET
+
+    # query string
+    query: name={name}&date={date}
+
+    # any other curl option
+    options:
+      - '--silent'
+
+# request definitions
+requests:
+
+  # request name
+  show_sconsify:
+
+    # endpoint name
+    endpoint: get_repo
+
+    # local variables
+    owner: fabiofalci
+    repo: sconsify
+```
+
+### Environments
+
+You can define one basic api file and then import it from different environment files:
+
+`api.yaml`
+
+```yaml
+url: https://{env}.my-api.com
+
+endpoints:
+  get_something:
+    path: /something/{id}
+```
+
+
+`api-staging.yaml`
+
+```yaml
+files:
+  - 'api.yaml'
+
+variables:
+  env: dev
+
+requests:
+  get_something_123:
+    endpoint: get_something
+    id: 123
+```
+
+`api-uat.yaml`
+
+```yaml
+files:
+  - 'api.yaml'
+
+variables:
+  env: uat
+
+requests:
+  get_something_456:
+    endpoint: get_something
+    id: 456
 ```
