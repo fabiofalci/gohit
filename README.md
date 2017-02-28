@@ -3,6 +3,8 @@ gohit
 
 Run curl commands from yaml files.
 
+Download current version [0.1.0](https://github.com/fabiofalci/gohit/releases)
+
 * Define your API:
 
 ```yaml
