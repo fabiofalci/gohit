@@ -38,8 +38,9 @@ const runCurlTemplate = `{{.Url}}{{.Path}}{{if .Query}}?{{.Query}}{{end}}
 -X{{.Method}}`
 
 type Printer struct {
-	conf   *Configuration
-	writer io.Writer
+	conf    *Configuration
+	writer  io.Writer
+	oneLine bool
 }
 
 func (printer *Printer) ShowRequests() {
@@ -86,9 +87,19 @@ func (printer *Printer) ShowRequestOrEndpoint(requestName string) {
 }
 
 func (printer *Printer) showExecutable(executable Executable) {
-	t := template.Must(template.New("curlTemplate").Parse(showCurlTemplate))
+	t := template.Must(template.New("curlTemplate").Parse(printer.getTemplate(executable)))
 	fmt.Fprintf(printer.writer, "Endpoint %v:\n", executable.GetName())
 	t.Execute(printer.writer, executable)
+}
+
+
+func (printer *Printer) getTemplate(executable Executable) string {
+	if !printer.oneLine {
+		return showCurlTemplate
+	}
+	t := strings.Replace(showCurlTemplate, "\\", "", -1)
+	t = strings.Replace(t, "\n", "", -1)
+	return regexp.MustCompile(`[\s\p{Zs}]{2,}`).ReplaceAllString(t, " ") + "\n"
 }
 
 // methods used by the templates

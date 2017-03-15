@@ -53,6 +53,7 @@ func main() {
 
 	var file string
 	var directory string
+	var oneLine bool
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -66,6 +67,11 @@ func main() {
 			Destination: &directory,
 			Value:       ".",
 		},
+		cli.BoolFlag{
+			Name:        "oneline, ol",
+			Usage:       "Print commands in one line",
+			Destination: &oneLine,
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -77,7 +83,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				printer := &Printer{conf: conf, writer: os.Stdout}
+				printer := &Printer{conf: conf, writer: os.Stdout, oneLine: oneLine}
 				printer.ShowRequests()
 				return nil
 			},
@@ -90,7 +96,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				printer := &Printer{conf: conf, writer: os.Stdout}
+				printer := &Printer{conf: conf, writer: os.Stdout, oneLine: oneLine}
 				printer.ShowEndpoints()
 				return nil
 			},
@@ -102,7 +108,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				printer := &Printer{conf: conf, writer: os.Stdout}
+				printer := &Printer{conf: conf, writer: os.Stdout, oneLine: oneLine}
 				printer.ShowRequestOrEndpoint(c.Args().First())
 				return nil
 			},
