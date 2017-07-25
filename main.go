@@ -121,7 +121,8 @@ func main() {
 					return err
 				}
 				executor := NewDefaultExecutor(conf)
-				return executor.RunRequest(c.Args().First())
+				requestName := c.Args().First()
+				return executor.RunRequest(requestName, c.Args().Tail())
 			},
 		},
 	}

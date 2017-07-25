@@ -13,8 +13,9 @@ import (
 )
 
 type Executor struct {
-	conf   *Configuration
-	runner CommandRunner
+	conf      *Configuration
+	runner    CommandRunner
+	varReader VariableReader
 }
 
 type CommandRunner interface {
@@ -24,29 +25,39 @@ type CommandRunner interface {
 type DefaultRunner struct {
 }
 
-func NewDefaultExecutor(conf *Configuration) *Executor {
-	runner := &DefaultRunner{}
-	return NewExecutor(conf, runner)
+type VariableReader interface {
+	Read(variableName string) string
 }
 
-func NewExecutor(conf *Configuration, runner CommandRunner) *Executor {
+type DefaultVariableReader struct {
+}
+
+
+func NewDefaultExecutor(conf *Configuration) *Executor {
+	runner := &DefaultRunner{}
+	varReader := &DefaultVariableReader{}
+	return NewExecutor(conf, runner, varReader)
+}
+
+func NewExecutor(conf *Configuration, runner CommandRunner, varReader VariableReader) *Executor {
 	executor := &Executor{
 		conf: conf,
 		runner: runner,
+		varReader: varReader,
 	}
 	return executor
 }
 
-func (executor *Executor) RunRequest(requestName string) error {
+func (executor *Executor) RunRequest(requestName string, args []string) error {
 	request := executor.conf.Requests[requestName]
 	if request != nil {
-		return executor.runExecutable(request)
+		return executor.runExecutable(request, args)
 	}
 
 	endpoint := executor.conf.Endpoints[requestName]
 	if endpoint != nil {
 		if r, err := executor.createTemporaryRequest(requestName); err == nil {
-			return executor.runExecutable(r)
+			return executor.runExecutable(r, args)
 		} else {
 			return err
 		}
@@ -60,7 +71,7 @@ func (executor *Executor) createTemporaryRequest(requestName string) (*Request, 
 	return executor.conf.createRequest(requestName, m)
 }
 
-func (executor *Executor) runExecutable(executable Executable) error {
+func (executor *Executor) runExecutable(executable Executable, args []string) error {
 	t := template.Must(template.New("curlTemplate").Parse(runCurlTemplate))
 	buf := new(bytes.Buffer)
 	t.Execute(buf, executable)
@@ -69,17 +80,28 @@ func (executor *Executor) runExecutable(executable Executable) error {
 
 	if !executor.hasResolvedAllVariables(requestAsString) {
 		re := regexp.MustCompile("{(.+?)}")
-		for _, v := range re.FindAllString(requestAsString, -1) {
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Printf("Enter %v: ", v)
-			value, _ := reader.ReadString('\n')
-			value = strings.TrimSpace(value)
+		for i, v := range re.FindAllString(requestAsString, -1) {
+			value := executor.getValue(v, i, args)
 			requestAsString = strings.Replace(requestAsString, v, value, -1)
 		}
 	}
 
 	asArray := strings.Split(requestAsString, "\n")
 	return executor.runner.Run(asArray)
+}
+
+func (executor *Executor) getValue(variableName string, position int, args []string) string {
+	if len(args) > position {
+		return args[position]
+	}
+	return executor.varReader.Read(variableName)
+}
+
+func (parameterReader *DefaultVariableReader) Read(variableName string) string {
+	fmt.Printf("Enter %v: ", variableName)
+	reader := bufio.NewReader(os.Stdin)
+	value, _ := reader.ReadString('\n')
+	return strings.TrimSpace(value)
 }
 
 func (runner *DefaultRunner) Run(command []string) error {
