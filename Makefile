@@ -8,7 +8,6 @@ test:
 	go test -v ./...
 
 build:
-	glide -q install
 	go build -ldflags "\
 		 -X main.version=$(VERSION) \
 		 -X main.commit=$(COMMIT) \
