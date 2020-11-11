@@ -40,7 +40,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	if endpoint1.Name != "endpoint1" ||
 		endpoint1.Path != "/path1" ||
 		endpoint1.Url != "https://localhost" ||
-		endpoint1.Query != "" ||
+		endpoint1.QueryRaw != "" ||
 		len(endpoint1.Headers) != 3 ||
 		len(endpoint1.Options) != 4 ||
 		endpoint1.Method != "GET" {
@@ -51,7 +51,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	if endpoint2.Name != "endpoint2" ||
 		endpoint2.Path != "/path2/{variable}/something" ||
 		endpoint2.Url != "https://localhost" ||
-		endpoint2.Query != "" ||
+		endpoint2.QueryRaw != "" ||
 		len(endpoint2.Headers) != 3 ||
 		len(endpoint2.Options) != 4 ||
 		endpoint2.Method != "GET" {
@@ -62,7 +62,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	if endpoint3.Name != "endpoint3" ||
 		endpoint3.Path != "/path3" ||
 		endpoint3.Url != "https://localhost" ||
-		endpoint3.Query != "" ||
+		endpoint3.QueryRaw != "" ||
 		len(endpoint3.Headers) != 4 ||
 		len(endpoint3.Options) != 4 ||
 		endpoint3.Method != "PUT" {
@@ -73,7 +73,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	if endpoint4.Name != "endpoint4" ||
 		endpoint4.Path != "/path4/{variable}" ||
 		endpoint4.Url != "https://localhost" ||
-		endpoint4.Query != "name={name}&date={date}" ||
+		endpoint4.QueryRaw != "name={name}&date={date}" ||
 		len(endpoint4.Headers) != 3 ||
 		len(endpoint4.Options) != 4 ||
 		endpoint4.Method != "POST" {
@@ -84,7 +84,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	if endpoint5.Name != "endpoint5" ||
 		endpoint5.Path != "/" ||
 		endpoint5.Url != "https://localhost" ||
-		endpoint5.Query != "" ||
+		endpoint5.QueryRaw != "" ||
 		len(endpoint5.Headers) != 3 ||
 		len(endpoint5.Options) != 4 ||
 		endpoint5.Method != "DELETE" {
@@ -103,7 +103,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request1.Name != "request1" ||
 		request1.Path != "/path1" ||
 		request1.Url != "https://localhost" ||
-		request1.Query != "" ||
+		request1.QueryRaw != "" ||
 		len(request1.Headers) != 3 ||
 		len(request1.Options) != 4 ||
 		len(request1.Parameters) != 1 ||
@@ -115,7 +115,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request2.Name != "request2" ||
 		request2.Path != "/path2/value/something" ||
 		request2.Url != "https://localhost" ||
-		request2.Query != "" ||
+		request2.QueryRaw != "" ||
 		len(request2.Headers) != 3 ||
 		len(request2.Options) != 4 ||
 		len(request2.Parameters) != 1 ||
@@ -127,7 +127,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request3.Name != "request3" ||
 		request3.Path != "/path3" ||
 		request3.Url != "https://localhost" ||
-		request3.Query != "" ||
+		request3.QueryRaw != "" ||
 		len(request3.Headers) != 4 ||
 		len(request3.Options) != 4 ||
 		len(request3.Parameters) != 1 ||
@@ -139,7 +139,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request4.Name != "request4" ||
 		request4.Path != "/path4/value" ||
 		request4.Url != "https://localhost" ||
-		request4.Query != "name=gohit&date=today" ||
+		request4.QueryRaw != "name=gohit&date=today" ||
 		len(request4.Headers) != 3 ||
 		len(request4.Options) != 4 ||
 		len(request4.Parameters) != 3 ||
@@ -151,7 +151,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request41.Name != "request4_1" ||
 		request41.Path != "/path4/value" ||
 		request41.Url != "https://localhost" ||
-		request41.Query != "name=gohit1&date=today1" ||
+		request41.QueryRaw != "name=gohit1&date=today1" ||
 		len(request41.Headers) != 3 ||
 		len(request41.Options) != 4 ||
 		len(request41.Parameters) != 3 ||
@@ -163,7 +163,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request5.Name != "request5" ||
 		request5.Path != "/" ||
 		request5.Url != "https://localhost" ||
-		request5.Query != "" ||
+		request5.QueryRaw != "" ||
 		len(request5.Headers) != 3 ||
 		len(request5.Options) != 4 ||
 		len(request5.Parameters) != 1 ||
@@ -183,7 +183,7 @@ func TestOverrideUrl(t *testing.T) {
 	if request1.Name != "request1" ||
 		request1.Path != "/path1" ||
 		request1.Url != "https://127.0.0.1" ||
-		request1.Query != "" ||
+		request1.QueryRaw != "" ||
 		len(request1.Headers) != 3 ||
 		len(request1.Options) != 4 ||
 		len(request1.Parameters) != 1 ||
@@ -228,10 +228,10 @@ url: local
 
 endpoints:
   test:
-  method: GET
+    method: GET
 `)
 
-	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Endpoint test missing path" {
+	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Endpoint 'test' missing path" {
 		t.Error("Should have thrown a missing path error but got ", err)
 	}
 }

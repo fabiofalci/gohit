@@ -10,27 +10,27 @@ import (
 )
 
 type Endpoint struct {
-	Name        string
-	Url         string
-	Path        string
-	Query       string
-	QueryParams map[string]string
-	Method      string
-	Headers     map[string]bool
-	Options     map[string]bool
-	Parameters  map[interface{}]interface{}
+	Name       string
+	Url        string
+	Path       string
+	QueryRaw   string
+	QueryList  map[string]string
+	Method     string
+	Headers    map[string]bool
+	Options    map[string]bool
+	Parameters map[interface{}]interface{}
 }
 
 type Request struct {
-	Name        string
-	Url         string
-	Path        string
-	Query       string
-	QueryParams map[string]string
-	Method      string
-	Headers     map[string]bool
-	Options     map[string]bool
-	Parameters  map[interface{}]interface{}
+	Name       string
+	Url        string
+	Path       string
+	QueryRaw   string
+	QueryList  map[string]string
+	Method     string
+	Headers    map[string]bool
+	Options    map[string]bool
+	Parameters map[interface{}]interface{}
 }
 
 type Executable interface {
@@ -150,12 +150,12 @@ func (request *Request) GetOptions() map[string]bool {
 }
 
 func (request *Request) String() string {
-	return fmt.Sprintf("%v %v %v %v %v QueryParams=%v Headers=%v Options=%v Param=%v", request.Name,
+	return fmt.Sprintf("%v %v %v %v QueryRaw=%v QueryList=%v Headers=%v Options=%v Param=%v", request.Name,
 		request.Method,
 		request.Url,
 		request.Path,
-		request.Query,
-		request.QueryParams,
+		request.QueryRaw,
+		request.QueryList,
 		len(request.Headers),
 		len(request.Options),
 		len(request.Parameters),
@@ -163,12 +163,12 @@ func (request *Request) String() string {
 }
 
 func (endpoint *Endpoint) String() string {
-	return fmt.Sprintf("%v %v %v %v %v QueryParams=%v Headers=%v Options=%v", endpoint.Name,
+	return fmt.Sprintf("%v %v %v %v QueryRaw=%v QueryList=%v Headers=%v Options=%v", endpoint.Name,
 		endpoint.Method,
 		endpoint.Url,
 		endpoint.Path,
-		endpoint.Query,
-		endpoint.QueryParams,
+		endpoint.QueryRaw,
+		endpoint.QueryList,
 		len(endpoint.Headers),
 		len(endpoint.Options),
 	)

@@ -9,15 +9,15 @@ import (
 	"strings"
 )
 
-const showCurlTemplate = `curl '{{.Url}}{{.Path}}' \
+const showCurlTemplate = `curl '{{.Url}}{{.Path}}{{if .QueryRaw}}?{{.QueryRaw}}{{end}}' \
 {{- if .Headers}}
         {{- range $key, $value := .Headers }}
         -H '{{$key}}' \
         {{- end}}
 {{- end}}
-{{- if .QueryParams}}
+{{- if .QueryList}}
 		-G \
-        {{- range $key, $value := .QueryParams }}
+        {{- range $key, $value := .QueryList }}
 		--data-urlencode '{{$key}}={{$value}}' \
         {{- end}}
 {{- end}}
@@ -31,18 +31,18 @@ const showCurlTemplate = `curl '{{.Url}}{{.Path}}' \
 
 // A separated template for running as it needs to transform the command to an array of string.
 // It splits on newline.
-const runCurlTemplate = `{{.Url}}{{.Path}}
+const runCurlTemplate = `{{.Url}}{{.Path}}{{if .QueryRaw}}?{{.QueryRaw}}{{end}}
 {{- if .Headers}}
         {{- range $key, $value := .Headers }}
 -H
 {{$key}}
         {{- end}}
 {{- end}}
-{{- if .QueryParams}}
--G 
-        {{- range $key, $value := .QueryParams }}
---data-urlencode 
-'{{$key}}={{$value}}' 
+{{- if .QueryList}}
+-G
+        {{- range $key, $value := .QueryList }}
+--data-urlencode
+'{{$key}}={{$value}}'
         {{- end}}
 {{- end}}
 {{- if .Options}}

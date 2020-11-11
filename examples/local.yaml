@@ -11,12 +11,34 @@ endpoints:
     path: /ip
 
   get_cpu_load:
+    method: GET
     path: /cpu/{cpu}/load
-    query: core freq temp version
+    x-www-form-urlencoded:
+      - core
+      - temperature
     options:
       - '--silent'
     parameters:
       core: 1
+
+  get_cpu_load_raw_query:
+    method: GET
+    path: /cpu/{cpu}/load
+    query: core={core}&freq={freq}&temp={temp}&version={version}
+    options:
+      - '--silent'
+    parameters:
+      core: 1
+
+  post_cpu_load:
+    method: POST
+    path: /cpu/{cpu}/load
+    query:
+      - version
+      - type
+    x-www-form-urlencoded: core={core}&freq={freq}
+    parameters:
+      version: 1
 
   put_cpu_load_limit:
     path: /cpu/{cpu}/load/{load}

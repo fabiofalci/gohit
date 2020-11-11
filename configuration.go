@@ -96,7 +96,7 @@ func (conf *Configuration) validate() error {
 
 	for _, endpoint := range conf.Endpoints {
 		if endpoint.Path == "" {
-			return errors.New(fmt.Sprintf("Endpoint %v missing path", endpoint.Name))
+			return errors.New(fmt.Sprintf("Endpoint '%v' missing path", endpoint.Name))
 		}
 	}
 
@@ -198,10 +198,10 @@ func (conf *Configuration) readEndpoints(endpointMap map[interface{}]interface{}
 
 func (conf *Configuration) createRequest(name string, value interface{}) (*Request, error) {
 	request := &Request{
-		Name:        name,
-		Headers:     make(map[string]bool),
-		Options:     make(map[string]bool),
-		QueryParams: make(map[string]string),
+		Name:      name,
+		Headers:   make(map[string]bool),
+		Options:   make(map[string]bool),
+		QueryList: make(map[string]string),
 	}
 
 	request.Parameters = value.(map[interface{}]interface{})
@@ -214,7 +214,8 @@ func (conf *Configuration) createRequest(name string, value interface{}) (*Reque
 	request.Method = endpoint.Method
 	request.Url = endpoint.Url
 	request.Path = endpoint.Path
-	request.Query = endpoint.Query
+	request.QueryRaw = endpoint.QueryRaw
+	request.QueryList = endpoint.QueryList
 
 	for k, v := range endpoint.Headers {
 		request.Headers[k] = v
@@ -240,9 +241,13 @@ func (conf *Configuration) replaceAll(request *Request, toReplace string, value 
 	replacement := conf.getReplacement(value)
 	request.Url = strings.Replace(request.Url, toReplace, replacement, -1)
 	request.Path = strings.Replace(request.Path, toReplace, replacement, -1)
+	request.QueryRaw = strings.Replace(request.QueryRaw, toReplace, replacement, -1)
 
-	for _, queryParam := range strings.Split(request.Query, " ") {
-		request.QueryParams[queryParam] = "{" + queryParam + "}"
+	for name, value := range request.QueryList {
+		replaced := strings.Replace(value, toReplace, replacement, -1)
+		if value != replaced {
+			request.QueryList[name] = replaced
+		}
 	}
 
 	for header := range request.Headers {
@@ -276,10 +281,10 @@ func (conf *Configuration) getReplacement(value interface{}) string {
 
 func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error {
 	endpoint := &Endpoint{
-		Name:        name,
-		Headers:     make(map[string]bool),
-		Options:     make(map[string]bool),
-		QueryParams: make(map[string]string),
+		Name:      name,
+		Headers:   make(map[string]bool),
+		Options:   make(map[string]bool),
+		QueryList: make(map[string]string),
 	}
 	conf.Endpoints[name] = endpoint
 
@@ -288,10 +293,13 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 	}
 
 	if query, err := yaml.GetPath(ENDPOINTS, name, QUERY).String(); err == nil {
-		endpoint.Query = query
+		endpoint.QueryRaw = query
+	}
 
-		for _, queryParam := range strings.Split(endpoint.Query, " ") {
-			endpoint.QueryParams[queryParam] = "{" + queryParam + "}"
+	if queryList, err := yaml.GetPath(ENDPOINTS, name, QUERY).Array(); err == nil {
+		for i := range queryList {
+			queryName := queryList[i].(string)
+			endpoint.QueryList[queryName] = "{" + queryName + "}"
 		}
 	}
 
