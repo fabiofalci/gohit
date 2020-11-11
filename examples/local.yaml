@@ -13,7 +13,7 @@ endpoints:
   get_cpu_load:
     method: GET
     path: /cpu/{cpu}/load
-    x-www-form-urlencoded:
+    query:
       - core
       - temperature
     options:
@@ -36,7 +36,6 @@ endpoints:
     query:
       - version
       - type
-    x-www-form-urlencoded: core={core}&freq={freq}
     parameters:
       version: 1
 
