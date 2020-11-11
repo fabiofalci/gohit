@@ -16,9 +16,9 @@ const showCurlTemplate = `curl '{{.Url}}{{.Path}}{{if .QueryRaw}}?{{.QueryRaw}}{
         {{- end}}
 {{- end}}
 {{- if .QueryList}}
-		-G \
+        -G \
         {{- range $key, $value := .QueryList }}
-		--data-urlencode '{{$key}}={{$value}}' \
+        --data-urlencode '{{$key}}={{$value}}' \
         {{- end}}
 {{- end}}
 {{- if .Options}}

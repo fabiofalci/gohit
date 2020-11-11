@@ -63,9 +63,9 @@ curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
-		-G \
-		--data-urlencode 'format=json' \
-		--data-urlencode 'version=v2' \
+        -G \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'version=v2' \
         --compress \
         --silent \
         -s \
@@ -77,9 +77,9 @@ curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
-		-G \
-		--data-urlencode 'format=json' \
-		--data-urlencode 'version=v2' \
+        -G \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'version=v2' \
         --compress \
         --silent \
         -s \
@@ -91,9 +91,9 @@ curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
-		-G \
-		--data-urlencode 'format=json' \
-		--data-urlencode 'version=v2' \
+        -G \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'version=v2' \
         --compress \
         --silent \
         -s \
@@ -150,9 +150,9 @@ curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
-		-G \
-		--data-urlencode 'format=json' \
-		--data-urlencode 'version=v2' \
+        -G \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'version=v2' \
         --compress \
         --silent \
         -s \
