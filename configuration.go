@@ -33,6 +33,7 @@ const (
 	HEADERS = "headers"
 	FILES = "files"
 	VARIABLES = "variables"
+	PARAMETERS = "parameters"
 
 	ENDPOINTS = "endpoints"
 	PATH = "path"
@@ -197,9 +198,10 @@ func (conf *Configuration) readEndpoints(endpointMap map[interface{}]interface{}
 
 func (conf *Configuration) createRequest(name string, value interface{}) (*Request, error) {
 	request := &Request{
-		Name:    name,
-		Headers: make(map[string]bool),
-		Options: make(map[string]bool),
+		Name:        name,
+		Headers:     make(map[string]bool),
+		Options:     make(map[string]bool),
+		QueryParams: make(map[string]string),
 	}
 
 	request.Parameters = value.(map[interface{}]interface{})
@@ -238,7 +240,10 @@ func (conf *Configuration) replaceAll(request *Request, toReplace string, value 
 	replacement := conf.getReplacement(value)
 	request.Url = strings.Replace(request.Url, toReplace, replacement, -1)
 	request.Path = strings.Replace(request.Path, toReplace, replacement, -1)
-	request.Query = strings.Replace(request.Query, toReplace, replacement, -1)
+
+	for _, queryParam := range strings.Split(request.Query, " ") {
+		request.QueryParams[queryParam] = "{" + queryParam + "}"
+	}
 
 	for header := range request.Headers {
 		replaced := strings.Replace(header, toReplace, replacement, -1)
@@ -271,9 +276,10 @@ func (conf *Configuration) getReplacement(value interface{}) string {
 
 func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error {
 	endpoint := &Endpoint{
-		Name:    name,
-		Headers: make(map[string]bool),
-		Options: make(map[string]bool),
+		Name:        name,
+		Headers:     make(map[string]bool),
+		Options:     make(map[string]bool),
+		QueryParams: make(map[string]string),
 	}
 	conf.Endpoints[name] = endpoint
 
@@ -283,6 +289,10 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 
 	if query, err := yaml.GetPath(ENDPOINTS, name, QUERY).String(); err == nil {
 		endpoint.Query = query
+
+		for _, queryParam := range strings.Split(endpoint.Query, " ") {
+			endpoint.QueryParams[queryParam] = "{" + queryParam + "}"
+		}
 	}
 
 	if url, err := yaml.GetPath(ENDPOINTS, name, URL).String(); err == nil {
@@ -309,6 +319,7 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 		}
 	}
 
+	endpoint.Parameters, _ = yaml.GetPath(ENDPOINTS, name, PARAMETERS).Map()
 	return nil
 }
 

@@ -12,8 +12,11 @@ endpoints:
 
   get_cpu_load:
     path: /cpu/{cpu}/load
+    query: core freq temp version
     options:
       - '--silent'
+    parameters:
+      core: 1
 
   put_cpu_load_limit:
     path: /cpu/{cpu}/load/{load}
@@ -25,6 +28,10 @@ requests:
   get_cpu0_load:
     endpoint: get_cpu_load
     cpu: 0
+    core: 0
+    freq: 1
+    temp: 50
+    version: 4
 
   full_local_cpu:
     endpoint: put_cpu_load_limit

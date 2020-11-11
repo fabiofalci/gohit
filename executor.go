@@ -77,7 +77,6 @@ func (executor *Executor) runExecutable(executable Executable, args []string) er
 	t.Execute(buf, executable)
 
 	requestAsString := buf.String()
-
 	if !executor.hasResolvedAllVariables(requestAsString) {
 		re := regexp.MustCompile("{(.+?)}")
 		for i, v := range re.FindAllString(requestAsString, -1) {
