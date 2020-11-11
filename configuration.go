@@ -1,12 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/smallfish/simpleyaml"
 	"io/ioutil"
 	"strconv"
 	"strings"
-	"errors"
 )
 
 type Configuration struct {
@@ -28,17 +28,17 @@ type ConfReader interface {
 }
 
 const (
-	URL = "url"
-	OPTIONS = "options"
-	HEADERS = "headers"
-	FILES = "files"
-	VARIABLES = "variables"
+	URL        = "url"
+	OPTIONS    = "options"
+	HEADERS    = "headers"
+	FILES      = "files"
+	VARIABLES  = "variables"
 	PARAMETERS = "parameters"
 
 	ENDPOINTS = "endpoints"
-	PATH = "path"
-	METHOD = "method"
-	QUERY = "query"
+	PATH      = "path"
+	METHOD    = "method"
+	QUERY     = "query"
 
 	REQUESTS = "requests"
 	ENDPOINT = "endpoint"

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"testing"
 	"errors"
 	"reflect"
+	"testing"
 )
 
 func TestRequestEndpointNotFound(t *testing.T) {
-	conf, _:= NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests.yaml"))
+	conf, _ := NewConfiguration(NewSilentConfigurationReader("_resources/valid", "api-requests.yaml"))
 	executor := NewDefaultExecutor(conf)
 
 	if err := executor.RunRequest("not-found", nil); err == nil || err.Error() != "Could not find request/endpoint not-found" {
@@ -18,7 +18,7 @@ func TestRequestEndpointNotFound(t *testing.T) {
 func TestExecuteRequest(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -46,7 +46,7 @@ requests:
 func TestExecuteEndpoint(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -68,11 +68,10 @@ endpoints:
 	}
 }
 
-
 func TestExecuteEndpointWithParams(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -97,7 +96,7 @@ endpoints:
 func TestExecuteEndpointWithParamsResolvedByArgs(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -122,7 +121,7 @@ endpoints:
 func TestExecuteRequestWithParams(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -150,7 +149,7 @@ requests:
 func TestExecuteRequestWithParamsResolvedByArgs(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -185,7 +184,6 @@ func (runner *MockCommandRunner) Run(command []string) error {
 func (parameterReader *MockVariableReader) Read(variableName string) string {
 	return "value"
 }
-
 
 type MockCommandRunner struct {
 	command []string

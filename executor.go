@@ -1,15 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"bytes"
-	"regexp"
 	"bufio"
-	"os"
-	"strings"
-	"os/exec"
-	"text/template"
+	"bytes"
 	"errors"
+	"fmt"
+	"os"
+	"os/exec"
+	"regexp"
+	"strings"
+	"text/template"
 )
 
 type Executor struct {
@@ -32,7 +32,6 @@ type VariableReader interface {
 type DefaultVariableReader struct {
 }
 
-
 func NewDefaultExecutor(conf *Configuration) *Executor {
 	runner := &DefaultRunner{}
 	varReader := &DefaultVariableReader{}
@@ -41,8 +40,8 @@ func NewDefaultExecutor(conf *Configuration) *Executor {
 
 func NewExecutor(conf *Configuration, runner CommandRunner, varReader VariableReader) *Executor {
 	executor := &Executor{
-		conf: conf,
-		runner: runner,
+		conf:      conf,
+		runner:    runner,
 		varReader: varReader,
 	}
 	return executor

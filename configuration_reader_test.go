@@ -37,5 +37,3 @@ func TestOptionalYamlConfigurationReader(t *testing.T) {
 		t.Error("Should have read 1 configuration file")
 	}
 }
-
-

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"os"
-	"github.com/urfave/cli"
 	"fmt"
+	"github.com/urfave/cli"
+	"os"
+	"runtime"
 	"strconv"
 	"time"
-	"runtime"
 )
 
 type Endpoint struct {

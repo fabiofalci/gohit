@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"errors"
+	"testing"
 )
 
 func TestLoadAllConfigurationGlobal(t *testing.T) {
@@ -196,10 +196,9 @@ func TestOverrideUrl(t *testing.T) {
 func TestLoadMissingEndpoints(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 `)
-
 
 	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Missing endpoints" {
 		t.Error("Should have thrown a missing endpoints error")
@@ -209,12 +208,11 @@ url: local
 func TestLoadMissingUrl(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 endpoints:
   test:
     path: /test
 `)
-
 
 	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Missing URL" {
 		t.Error("Should have thrown a missing URL error")
@@ -224,7 +222,7 @@ endpoints:
 func TestMissingPath(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -240,7 +238,7 @@ endpoints:
 func TestRequestUsingMissingEndpoint(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 endpoints:
@@ -252,7 +250,6 @@ requests:
     endpoint: test_1
 `)
 
-
 	if _, err := NewConfiguration(reader); err == nil || err.Error() != "Request my_request couldn't find endpoint test_1" {
 		t.Error("Should have thrown a missing endpoint error")
 	}
@@ -261,7 +258,7 @@ requests:
 func TestInvalidAttribute(t *testing.T) {
 	reader := &MockReader{configurations: make(map[string][]byte)}
 	reader.configurations["test"] = []byte(
-`
+		`
 url: local
 
 invalid: true

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"testing"
 	"bytes"
 	"strings"
+	"testing"
 )
 
 func TestShowEndpoints(t *testing.T) {
@@ -58,7 +58,7 @@ func TestShowRequest(t *testing.T) {
 	}
 }
 
-var endpoint1Output =`Endpoint endpoint1:
+var endpoint1Output = `Endpoint endpoint1:
 curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
@@ -72,7 +72,7 @@ curl 'https://localhost/path1' \
         -vvv \
         -XGET`
 
-var request1Output =`Endpoint request1:
+var request1Output = `Endpoint request1:
 curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
@@ -86,7 +86,7 @@ curl 'https://localhost/path1' \
         -vvv \
         -XGET`
 
-var allEndpointsOutput =`Endpoint endpoint1:
+var allEndpointsOutput = `Endpoint endpoint1:
 curl 'https://localhost/path1' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \

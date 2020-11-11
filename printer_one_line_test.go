@@ -1,9 +1,9 @@
 package main
 
 import (
-	"testing"
 	"bytes"
 	"strings"
+	"testing"
 )
 
 func TestShowEndpointsOneLine(t *testing.T) {
@@ -61,10 +61,10 @@ func TestShowRequestOneLine(t *testing.T) {
 var endpoint1OutputOneLine = `Endpoint endpoint1:
 curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET`
 
-var request1OutputOneLine =`Endpoint request1:
+var request1OutputOneLine = `Endpoint request1:
 curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET`
 
-var allEndpointsOutputOneLine =`Endpoint endpoint1:
+var allEndpointsOutputOneLine = `Endpoint endpoint1:
 curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET
 
 Endpoint endpoint2:

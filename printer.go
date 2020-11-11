@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"text/template"
-	"sort"
 	"io"
 	"regexp"
+	"sort"
 	"strings"
+	"text/template"
 )
 
 const showCurlTemplate = `curl '{{.Url}}{{.Path}}{{if .QueryRaw}}?{{.QueryRaw}}{{end}}' \
@@ -105,7 +105,6 @@ func (printer *Printer) showExecutable(executable Executable) {
 	t.Execute(printer.writer, executable)
 }
 
-
 func (printer *Printer) getTemplate(executable Executable) string {
 	if !printer.oneLine {
 		return showCurlTemplate
@@ -136,4 +135,3 @@ func executableOptionsAsToken(executable Executable) string {
 
 	return strings.TrimPrefix(oneLineOptions, "\n")
 }
-

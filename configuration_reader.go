@@ -1,18 +1,18 @@
 package main
 
 import (
+	"bytes"
+	"io"
+	"io/ioutil"
 	"os"
 	"strings"
-	"io/ioutil"
-	"io"
-	"bytes"
 )
 
 type ConfigurationReader struct {
-	writer          *io.Writer
-	directory       string
-	file            string
-	configurations  map[string][]byte
+	writer         *io.Writer
+	directory      string
+	file           string
+	configurations map[string][]byte
 }
 
 func NewDefaultConfigurationReader(directory string, file string) *ConfigurationReader {
@@ -25,9 +25,9 @@ func NewSilentConfigurationReader(directory string, file string) *ConfigurationR
 
 func NewConfigurationReader(writer io.Writer, directory string, file string) *ConfigurationReader {
 	confReader := &ConfigurationReader{
-		writer: &writer,
-		directory: directory,
-		file: file,
+		writer:         &writer,
+		directory:      directory,
+		file:           file,
 		configurations: make(map[string][]byte),
 	}
 	return confReader
