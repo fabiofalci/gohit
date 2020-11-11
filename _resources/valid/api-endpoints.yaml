@@ -12,6 +12,9 @@ endpoints:
 
   endpoint1:
     path: /path1
+    query:
+      - version
+      - format
 
   endpoint2:
     method: GET

@@ -104,9 +104,10 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 		request1.Path != "/path1" ||
 		request1.Url != "https://localhost" ||
 		request1.QueryRaw != "" ||
+		len(request1.QueryList) != 2 ||
 		len(request1.Headers) != 3 ||
 		len(request1.Options) != 4 ||
-		len(request1.Parameters) != 1 ||
+		len(request1.Parameters) != 3 ||
 		request1.Method != "GET" {
 		t.Errorf("Request1 configuration problem %v", request1)
 	}

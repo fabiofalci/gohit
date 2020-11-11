@@ -59,13 +59,13 @@ func TestShowRequestOneLine(t *testing.T) {
 }
 
 var endpoint1OutputOneLine = `Endpoint endpoint1:
-curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XGET`
+curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET`
 
 var request1OutputOneLine =`Endpoint request1:
-curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XGET`
+curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET`
 
 var allEndpointsOutputOneLine =`Endpoint endpoint1:
-curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XGET
+curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET
 
 Endpoint endpoint2:
 curl 'https://localhost/path2/{variable}/something' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XGET
@@ -80,7 +80,7 @@ Endpoint endpoint5:
 curl 'https://localhost/' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XDELETE`
 
 var allRequestsOutputOneLine = `Endpoint request1:
-curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XGET
+curl 'https://localhost/path1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' -G --data-urlencode 'format=json' --data-urlencode 'version=v2' --compress --silent -s -vvv -XGET
 
 Endpoint request2:
 curl 'https://localhost/path2/value/something' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XGET

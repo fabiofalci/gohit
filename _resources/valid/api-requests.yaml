@@ -16,6 +16,8 @@ requests:
 
   request1:
     endpoint: endpoint1
+    version: v2
+    format: json
 
   request2:
     endpoint: endpoint2
