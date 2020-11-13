@@ -73,7 +73,7 @@ func TestLoadAllConfigurationEndpoints(t *testing.T) {
 	if endpoint4.Name != "endpoint4" ||
 		endpoint4.Path != "/path4/{variable}" ||
 		endpoint4.Url != "https://localhost" ||
-		endpoint4.QueryRaw != "name={name}&date={date}" ||
+		endpoint4.QueryRaw != "name={name}&date={date}&version={version}" ||
 		len(endpoint4.Headers) != 3 ||
 		len(endpoint4.Options) != 4 ||
 		endpoint4.Method != "POST" {
@@ -140,7 +140,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request4.Name != "request4" ||
 		request4.Path != "/path4/value" ||
 		request4.Url != "https://localhost" ||
-		request4.QueryRaw != "name=gohit&date=today" ||
+		request4.QueryRaw != "name=gohit&date=today&version=15" ||
 		len(request4.Headers) != 3 ||
 		len(request4.Options) != 4 ||
 		len(request4.Parameters) != 3 ||
@@ -152,12 +152,12 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 	if request41.Name != "request4_1" ||
 		request41.Path != "/path4/value" ||
 		request41.Url != "https://localhost" ||
-		request41.QueryRaw != "name=gohit1&date=today1" ||
+		request41.QueryRaw != "name=gohit1&date=today1&version=16" ||
 		len(request41.Headers) != 3 ||
 		len(request41.Options) != 4 ||
-		len(request41.Parameters) != 3 ||
-		request4.Method != "POST" {
-		t.Errorf("Request4_1 configuration problem %v", request4)
+		len(request41.Parameters) != 4 ||
+		request41.Method != "POST" {
+		t.Errorf("Request4_1 configuration problem %v", request41)
 	}
 
 	request5 := conf.Requests["request5"]

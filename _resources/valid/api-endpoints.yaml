@@ -34,7 +34,9 @@ endpoints:
   endpoint4:
     method: POST
     path: /path4/{variable}
-    query: name={name}&date={date}
+    query: name={name}&date={date}&version={version}
+    parameters:
+      version: 15
 
   endpoint5:
     method: DELETE

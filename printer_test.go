@@ -127,7 +127,7 @@ curl 'https://localhost/path3' \
         -XPUT
 
 Endpoint endpoint4:
-curl 'https://localhost/path4/{variable}?name={name}&date={date}' \
+curl 'https://localhost/path4/{variable}?name={name}&date={date}&version={version}' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
@@ -187,7 +187,7 @@ curl 'https://localhost/path3' \
         -XPUT
 
 Endpoint request4:
-curl 'https://localhost/path4/value?name=gohit&date=today' \
+curl 'https://localhost/path4/value?name=gohit&date=today&version=15' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
@@ -198,7 +198,7 @@ curl 'https://localhost/path4/value?name=gohit&date=today' \
         -XPOST
 
 Endpoint request4_1:
-curl 'https://localhost/path4/value?name=gohit1&date=today1' \
+curl 'https://localhost/path4/value?name=gohit1&date=today1&version=16' \
         -H 'Accept: application/vnd.github.v3+json' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \

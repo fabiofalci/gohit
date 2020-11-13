@@ -74,7 +74,7 @@ Endpoint endpoint3:
 curl 'https://localhost/path3' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Content-length: 0' -H 'Custom: value' --compress --silent -s -vvv -XPUT
 
 Endpoint endpoint4:
-curl 'https://localhost/path4/{variable}?name={name}&date={date}' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XPOST
+curl 'https://localhost/path4/{variable}?name={name}&date={date}&version={version}' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XPOST
 
 Endpoint endpoint5:
 curl 'https://localhost/' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XDELETE`
@@ -89,10 +89,10 @@ Endpoint request3:
 curl 'https://localhost/path3' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Content-length: 0' -H 'Custom: value' --compress --silent -s -vvv -XPUT
 
 Endpoint request4:
-curl 'https://localhost/path4/value?name=gohit&date=today' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XPOST
+curl 'https://localhost/path4/value?name=gohit&date=today&version=15' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XPOST
 
 Endpoint request4_1:
-curl 'https://localhost/path4/value?name=gohit1&date=today1' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XPOST
+curl 'https://localhost/path4/value?name=gohit1&date=today1&version=16' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XPOST
 
 Endpoint request5:
 curl 'https://localhost/' -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: bearer a12b3c' -H 'Custom: value' --compress --silent -s -vvv -XDELETE`
