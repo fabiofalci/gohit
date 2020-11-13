@@ -21,7 +21,7 @@ func TestLoadAllConfigurationGlobal(t *testing.T) {
 	}
 
 	if conf.GlobalUrl != "https://localhost" {
-		t.Error("Should be httos://localhost")
+		t.Error("Should be https://localhost")
 	}
 
 	if len(conf.GlobalVariables) != 1 {
@@ -104,7 +104,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 		request1.Path != "/path1" ||
 		request1.Url != "https://localhost" ||
 		request1.QueryRaw != "" ||
-		len(request1.QueryList) != 2 ||
+		len(request1.QueryList) != 3 ||
 		len(request1.Headers) != 3 ||
 		len(request1.Options) != 4 ||
 		len(request1.Parameters) != 3 ||

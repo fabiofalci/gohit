@@ -15,10 +15,11 @@ type Endpoint struct {
 	Path       string
 	QueryRaw   string
 	QueryList  map[string]string
+	QueryListKeys  []string
 	Method     string
 	Headers    map[string]bool
 	Options    map[string]bool
-	Parameters map[interface{}]interface{}
+	Parameters map[string]interface{}
 }
 
 type Request struct {
@@ -27,6 +28,7 @@ type Request struct {
 	Path       string
 	QueryRaw   string
 	QueryList  map[string]string
+	QueryListKeys  []string
 	Method     string
 	Headers    map[string]bool
 	Options    map[string]bool

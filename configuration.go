@@ -216,6 +216,7 @@ func (conf *Configuration) createRequest(name string, value interface{}) (*Reque
 	request.Path = endpoint.Path
 	request.QueryRaw = endpoint.QueryRaw
 	request.QueryList = endpoint.QueryList
+	request.QueryListKeys = endpoint.QueryListKeys
 
 	for k, v := range endpoint.Headers {
 		request.Headers[k] = v
@@ -228,6 +229,11 @@ func (conf *Configuration) createRequest(name string, value interface{}) (*Reque
 	for k := range request.Parameters {
 		toReplace := "{" + k.(string) + "}"
 		conf.replaceAll(request, toReplace, request.Parameters[k])
+	}
+
+	for k := range endpoint.Parameters {
+		toReplace := "{" + k + "}"
+		conf.replaceAll(request, toReplace, endpoint.Parameters[k])
 	}
 
 	for k := range conf.GlobalVariables {
@@ -285,6 +291,7 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 		Headers:   make(map[string]bool),
 		Options:   make(map[string]bool),
 		QueryList: make(map[string]string),
+		Parameters: make(map[string]interface{}),
 	}
 	conf.Endpoints[name] = endpoint
 
@@ -297,9 +304,11 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 	}
 
 	if queryList, err := yaml.GetPath(ENDPOINTS, name, QUERY).Array(); err == nil {
+		endpoint.QueryListKeys = make([]string, 0, len(queryList))
 		for i := range queryList {
 			queryName := queryList[i].(string)
 			endpoint.QueryList[queryName] = "{" + queryName + "}"
+			endpoint.QueryListKeys = append(endpoint.QueryListKeys, queryName)
 		}
 	}
 
@@ -327,7 +336,11 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 		}
 	}
 
-	endpoint.Parameters, _ = yaml.GetPath(ENDPOINTS, name, PARAMETERS).Map()
+	if params, err := yaml.GetPath(ENDPOINTS, name, PARAMETERS).Map(); err == nil {
+		for i := range params {
+			endpoint.Parameters[i.(string)] = params[i]
+		}
+	}
 	return nil
 }
 

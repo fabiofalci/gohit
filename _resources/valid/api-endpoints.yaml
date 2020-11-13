@@ -15,6 +15,9 @@ endpoints:
     query:
       - version
       - format
+      - spec
+    parameters:
+      spec: 20
 
   endpoint2:
     method: GET

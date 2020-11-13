@@ -64,8 +64,9 @@ curl 'https://localhost/path1' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
         -G \
-        --data-urlencode 'format=json' \
         --data-urlencode 'version=v2' \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'spec=20' \
         --compress \
         --silent \
         -s \
@@ -78,8 +79,9 @@ curl 'https://localhost/path1' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
         -G \
-        --data-urlencode 'format=json' \
         --data-urlencode 'version=v2' \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'spec=20' \
         --compress \
         --silent \
         -s \
@@ -92,8 +94,9 @@ curl 'https://localhost/path1' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
         -G \
-        --data-urlencode 'format=json' \
         --data-urlencode 'version=v2' \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'spec=20' \
         --compress \
         --silent \
         -s \
@@ -151,8 +154,9 @@ curl 'https://localhost/path1' \
         -H 'Authorization: bearer a12b3c' \
         -H 'Custom: value' \
         -G \
-        --data-urlencode 'format=json' \
         --data-urlencode 'version=v2' \
+        --data-urlencode 'format=json' \
+        --data-urlencode 'spec=20' \
         --compress \
         --silent \
         -s \
