@@ -107,7 +107,7 @@ func TestLoadAllConfigurationRequests(t *testing.T) {
 		len(request1.QueryList) != 3 ||
 		len(request1.Headers) != 3 ||
 		len(request1.Options) != 4 ||
-		len(request1.Parameters) != 3 ||
+		len(request1.Parameters) != 2 ||
 		request1.Method != "GET" {
 		t.Errorf("Request1 configuration problem %v", request1)
 	}

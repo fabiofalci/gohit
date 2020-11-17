@@ -306,9 +306,16 @@ func (conf *Configuration) addEndpoint(name string, yaml *simpleyaml.Yaml) error
 	if queryList, err := yaml.GetPath(ENDPOINTS, name, QUERY).Array(); err == nil {
 		endpoint.QueryListKeys = make([]string, 0, len(queryList))
 		for i := range queryList {
-			queryName := queryList[i].(string)
-			endpoint.QueryList[queryName] = "{" + queryName + "}"
-			endpoint.QueryListKeys = append(endpoint.QueryListKeys, queryName)
+			switch element := queryList[i].(type) {
+			case string:
+				endpoint.QueryList[element] = "{" + element + "}"
+				endpoint.QueryListKeys = append(endpoint.QueryListKeys, element)
+			case map[interface{}]interface{}:
+				for key, value := range element {
+					endpoint.QueryList[key.(string)] = value.(string)
+					endpoint.QueryListKeys = append(endpoint.QueryListKeys, key.(string))
+				}
+			}
 		}
 	}
 

@@ -13,7 +13,7 @@ endpoints:
   endpoint1:
     path: /path1
     query:
-      - version
+      - version: v2
       - format
       - spec
     parameters:
