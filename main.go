@@ -59,6 +59,7 @@ func main() {
 	var file string
 	var directory string
 	var oneLine bool
+	var jq bool
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -76,6 +77,11 @@ func main() {
 			Name:        "oneline, ol",
 			Usage:       "Print commands in one line",
 			Destination: &oneLine,
+		},
+		cli.BoolFlag{
+			Name:        "jq",
+			Usage:       "Parse the request body using jq",
+			Destination: &jq,
 		},
 	}
 
@@ -125,7 +131,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				executor := NewDefaultExecutor(conf)
+				executor := NewDefaultExecutor(conf, jq)
 				requestName := c.Args().First()
 				return executor.RunRequest(requestName, c.Args().Tail())
 			},

@@ -16,10 +16,11 @@ type Executor struct {
 	conf      *Configuration
 	runner    CommandRunner
 	varReader VariableReader
+	jq        bool
 }
 
 type CommandRunner interface {
-	Run(command []string) error
+	Run(command []string, jq bool) error
 }
 
 type DefaultRunner struct {
@@ -32,17 +33,18 @@ type VariableReader interface {
 type DefaultVariableReader struct {
 }
 
-func NewDefaultExecutor(conf *Configuration) *Executor {
+func NewDefaultExecutor(conf *Configuration, jq bool) *Executor {
 	runner := &DefaultRunner{}
 	varReader := &DefaultVariableReader{}
-	return NewExecutor(conf, runner, varReader)
+	return NewExecutor(conf, runner, varReader, jq)
 }
 
-func NewExecutor(conf *Configuration, runner CommandRunner, varReader VariableReader) *Executor {
+func NewExecutor(conf *Configuration, runner CommandRunner, varReader VariableReader, jq bool) *Executor {
 	executor := &Executor{
 		conf:      conf,
 		runner:    runner,
 		varReader: varReader,
+		jq:        jq,
 	}
 	return executor
 }
@@ -85,7 +87,7 @@ func (executor *Executor) runExecutable(executable Executable, args []string) er
 	}
 
 	asArray := strings.Split(requestAsString, "\n")
-	return executor.runner.Run(asArray)
+	return executor.runner.Run(asArray, executor.jq)
 }
 
 func (executor *Executor) getValue(variableName string, position int, args []string) string {
@@ -102,15 +104,34 @@ func (parameterReader *DefaultVariableReader) Read(variableName string) string {
 	return strings.TrimSpace(value)
 }
 
-func (runner *DefaultRunner) Run(command []string) error {
+func (runner *DefaultRunner) Run(command []string, jq bool) error {
 	cmd := exec.Command("curl", command...)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
-	cmd.Stdout = &out
+	var pipedCommand *exec.Cmd
 	cmd.Stderr = &stderr
+
+	if jq {
+		pipedCommand = exec.Command("jq")
+		pipedCommand.Stdin, _ = cmd.StdoutPipe()
+		pipedCommand.Stdout = &out
+		if err := pipedCommand.Start(); err != nil {
+			return err
+		}
+	} else {
+		cmd.Stdout = &out
+	}
+
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+
+	if pipedCommand != nil {
+		if err := pipedCommand.Wait(); err != nil {
+			return err
+		}
+	}
+
 	fmt.Println(out.String())
 	if stderr.Len() > 0 {
 		fmt.Println("#### Stderr ####")
