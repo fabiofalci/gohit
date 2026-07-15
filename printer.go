@@ -126,10 +126,16 @@ func (endpoint *Endpoint) OptionsAsToken() string {
 
 func executableOptionsAsToken(executable Executable) string {
 	oneLineOptions := ""
+	re := regexp.MustCompile(`[^\s"']+|"[^"]*"|'[^']*'`)
 	for option := range executable.GetOptions() {
-		re := regexp.MustCompile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'")
-		for _, v := range re.FindAllString(option, -1) {
-			oneLineOptions = oneLineOptions + "\n" + v
+		for _, token := range re.FindAllString(option, -1) {
+			// exec.Command passes each token straight to curl without shell
+			// interpretation, so surrounding quotes must be stripped here -
+			// they only exist to keep a token with spaces together.
+			if len(token) >= 2 && (token[0] == '"' || token[0] == '\'') && token[len(token)-1] == token[0] {
+				token = token[1 : len(token)-1]
+			}
+			oneLineOptions = oneLineOptions + "\n" + token
 		}
 	}
 

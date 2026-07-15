@@ -77,7 +77,10 @@ func (executor *Executor) runExecutable(executable Executable, args []string) er
 
 	requestAsString := buf.String()
 	if !executor.hasResolvedAllVariables(requestAsString) {
-		re := regexp.MustCompile("{(.+?)}")
+		// Matches only innermost {placeholder} pairs, so a placeholder nested
+		// inside literal braces (e.g. a JSON body like {"id": "{id}"}) resolves
+		// to just {id} instead of greedily spanning from the JSON's own { to it.
+		re := regexp.MustCompile("{([^{}]+)}")
 		for i, v := range re.FindAllString(requestAsString, -1) {
 			value := executor.getValue(v, i, args)
 			requestAsString = strings.Replace(requestAsString, v, value, -1)

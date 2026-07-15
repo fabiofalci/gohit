@@ -174,6 +174,57 @@ requests:
 	}
 }
 
+func TestExecuteEndpointWithQuotedOptionStripsQuotes(t *testing.T) {
+	reader := &MockReader{configurations: make(map[string][]byte)}
+	reader.configurations["test"] = []byte(`
+url: local
+
+endpoints:
+  test:
+    path: /test
+    options:
+      - "--data-urlencode 'client_secret=abc def'"
+`)
+
+	conf, err := NewConfiguration(reader)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	command := []string{"local/test", "--data-urlencode", "client_secret=abc def", "-XGET"}
+	executor := NewExecutor(conf, &MockCommandRunner{command: command}, &MockVariableReader{})
+
+	if err := executor.RunRequest("test", nil); err != nil {
+		t.Error("Should not throw an error ", err)
+	}
+}
+
+func TestExecuteEndpointWithJsonBodyPlaceholderResolvedByArgs(t *testing.T) {
+	reader := &MockReader{configurations: make(map[string][]byte)}
+	reader.configurations["test"] = []byte(`
+url: local
+
+endpoints:
+  test:
+    path: /test
+    method: POST
+    options:
+      - "-d '{\"_salesId\": \"{salesId}\"}'"
+`)
+
+	conf, err := NewConfiguration(reader)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	command := []string{"local/test", "-d", `{"_salesId": "S042302581"}`, "-XPOST"}
+	executor := NewExecutor(conf, &MockCommandRunner{command: command}, &MockVariableReader{})
+
+	if err := executor.RunRequest("test", []string{"S042302581"}); err != nil {
+		t.Error("Should not throw an error ", err)
+	}
+}
+
 func (runner *MockCommandRunner) Run(command []string) error {
 	if !reflect.DeepEqual(command, runner.command) {
 		return errors.New("CommandRunner array is not correct")
